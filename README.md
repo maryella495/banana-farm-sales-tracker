@@ -1,6 +1,7 @@
-# myapp
 
-A new Flutter project.
+# Banana Farm Sales Tracker
+
+A Flutter app for tracking banana farm sales.
 
 ## Getting Started
 
