@@ -72,27 +72,38 @@ class RecentTransactionSection extends StatelessWidget {
                     ],
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tx["name"]!,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: const Color(0xFFBCDABB),
+                        child: const Icon(
+                          Icons.person,
+                          color: Color(0xFF0A6305),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tx["name"]!,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            tx["date"]!,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.black.withOpacity(0.6),
+                            const SizedBox(height: 4),
+                            Text(
+                              tx["date"]!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.black.withOpacity(0.6),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       Text(
                         tx["amount"]!,

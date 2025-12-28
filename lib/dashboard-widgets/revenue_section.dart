@@ -26,12 +26,22 @@ class RevenueSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "This Week",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.black.withOpacity(0.6),
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: const Color(0xFF0A6305),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "This Week",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -64,12 +74,22 @@ class RevenueSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "This Month",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.black.withOpacity(0.6),
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.date_range,
+                        size: 16,
+                        color: const Color(0xFF0A6305),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "This Month",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   const Text(
