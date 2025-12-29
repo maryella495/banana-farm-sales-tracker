@@ -14,7 +14,12 @@ class _AddSalePageState extends State<AddSalePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add New Sale")),
+      appBar: AppBar(
+        title: const Text(
+          "Add New Sale",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -22,14 +27,24 @@ class _AddSalePageState extends State<AddSalePage> {
           child: ListView(
             children: [
               // Date of Sale
-              const Text("Date of Sale*", style: _labelStyle),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today,
+                    size: 18,
+                    color: Color(0xFF0A6305),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text("Date of Sale *", style: _labelStyle),
+                ],
+              ),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
-                    firstDate: DateTime(2020),
+                    firstDate: DateTime(2025),
                     lastDate: DateTime(2100),
                   );
                   if (picked != null) {
@@ -53,43 +68,103 @@ class _AddSalePageState extends State<AddSalePage> {
               const SizedBox(height: 16),
 
               // Buyer Name
-              const Text("Buyer Name*", style: _labelStyle),
+              Row(
+                children: [
+                  const Icon(Icons.person, size: 18, color: Color(0xFF0A6305)),
+                  const SizedBox(width: 6),
+                  const Text("Buyer Name *", style: _labelStyle),
+                ],
+              ),
               const SizedBox(height: 8),
-              TextFormField(
-                decoration: _inputDecoration("Enter buyer's name"),
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Required" : null,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 12,
+                ),
+                decoration: _boxDecoration,
+                child: TextFormField(
+                  decoration: _inputDecoration("Enter buyer's name"),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "Required" : null,
+                ),
               ),
               const SizedBox(height: 16),
 
               // Quantity Sold
-              const Text("Quantity Sold (kg)*", style: _labelStyle),
+              Row(
+                children: [
+                  const Icon(Icons.balance, size: 18, color: Color(0xFF0A6305)),
+                  const SizedBox(width: 6),
+                  const Text("Quantity Sold (kg) *", style: _labelStyle),
+                ],
+              ),
               const SizedBox(height: 8),
-              TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: _inputDecoration("0"),
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Required" : null,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 12,
+                ),
+                decoration: _boxDecoration,
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: _inputDecoration("0"),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "Required" : null,
+                ),
               ),
               const SizedBox(height: 16),
 
               // Price per kg
-              const Text("Price per kg (₱)*", style: _labelStyle),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.attach_money,
+                    size: 18,
+                    color: Color(0xFF0A6305),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text("Price per kg (₱) *", style: _labelStyle),
+                ],
+              ),
               const SizedBox(height: 8),
-              TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: _inputDecoration("0"),
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Required" : null,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 12,
+                ),
+                decoration: _boxDecoration,
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: _inputDecoration("0"),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "Required" : null,
+                ),
               ),
               const SizedBox(height: 16),
 
               // Notes
-              const Text("Notes (optional)", style: _labelStyle),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.description,
+                    size: 18,
+                    color: Color(0xFF0A6305),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text("Notes (optional)", style: _labelStyle),
+                ],
+              ),
               const SizedBox(height: 8),
-              TextFormField(
-                maxLines: 3,
-                decoration: _inputDecoration("Add any additional notes..."),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 12,
+                ),
+                decoration: _boxDecoration,
+                child: TextFormField(
+                  maxLines: 3,
+                  decoration: _inputDecoration("Add any additional notes..."),
+                ),
               ),
               const SizedBox(height: 80),
             ],
@@ -168,11 +243,6 @@ final _boxDecoration = BoxDecoration(
 
 InputDecoration _inputDecoration(String hint) => InputDecoration(
   hintText: hint,
-  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-  filled: true,
-  fillColor: Colors.white,
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: Colors.grey.shade300),
-  ),
+  border: InputBorder.none, // remove default border
+  contentPadding: EdgeInsets.zero, // let outer container handle padding
 );
