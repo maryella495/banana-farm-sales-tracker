@@ -91,7 +91,7 @@ class RecentTransactionSection extends StatelessWidget {
                               tx["name"]!,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 15,
+                                fontSize: 16,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -109,7 +109,7 @@ class RecentTransactionSection extends StatelessWidget {
                         tx["amount"]!,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 20,
                           color: Color(0xFF0A6305),
                         ),
                       ),

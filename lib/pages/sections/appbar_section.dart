@@ -6,7 +6,10 @@ AppBar appBar() {
     centerTitle: true,
     title: Text('Dashboard'),
     actions: [
-      Container(margin: EdgeInsets.all(10), child: Icon(Icons.notifications)),
+      Container(
+        margin: EdgeInsets.all(10),
+        child: Image.asset('assets/images/bfst_logo.png'),
+      ),
     ],
   );
 }

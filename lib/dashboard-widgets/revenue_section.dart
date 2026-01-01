@@ -38,6 +38,7 @@ class RevenueSection extends StatelessWidget {
                         "This Week",
                         style: TextStyle(
                           fontSize: 15,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black.withOpacity(0.6),
                         ),
                       ),
@@ -48,7 +49,7 @@ class RevenueSection extends StatelessWidget {
                     "₱2,000",
                     style: TextStyle(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: Colors.black,
                     ),
                   ),
@@ -86,6 +87,7 @@ class RevenueSection extends StatelessWidget {
                         "This Month",
                         style: TextStyle(
                           fontSize: 15,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black.withOpacity(0.6),
                         ),
                       ),
@@ -96,7 +98,7 @@ class RevenueSection extends StatelessWidget {
                     "₱12,000",
                     style: TextStyle(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                       color: Colors.black,
                     ),
                   ),
