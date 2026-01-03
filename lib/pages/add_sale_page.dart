@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/addsale-widgets/add_sale_footer_buttons.dart';
+import 'package:myapp/addsale-widgets/buyer_name_field_section.dart';
+import 'package:myapp/addsale-widgets/date_picker_field.dart';
+import 'package:myapp/addsale-widgets/notes_field.dart';
+import 'package:myapp/addsale-widgets/price_field.dart';
+import 'package:myapp/addsale-widgets/quantity_field.dart';
+import 'package:myapp/addsale-widgets/variation_field.dart';
 
 class AddSalePage extends StatefulWidget {
   const AddSalePage({super.key});
@@ -9,7 +16,32 @@ class AddSalePage extends StatefulWidget {
 
 class _AddSalePageState extends State<AddSalePage> {
   final _formKey = GlobalKey<FormState>();
+
+  // Controllers
+  final _buyerController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  // State
   DateTime? _selectedDate;
+  String? _selectedVariation;
+  String? _customVariation;
+  int _quantity = 0;
+
+  final List<String> _variations = ["Latundan", "Lakatan", "Cardava"];
+
+  void _saveSale() {
+    if (_formKey.currentState!.validate() && _quantity > 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Sale saved successfully!")));
+      Navigator.pop(context);
+    } else if (_quantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Quantity must be greater than 0")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +51,7 @@ class _AddSalePageState extends State<AddSalePage> {
           "Add New Sale",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        leading: BackButton(onPressed: () => Navigator.pop(context)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -26,223 +59,48 @@ class _AddSalePageState extends State<AddSalePage> {
           key: _formKey,
           child: ListView(
             children: [
-              // Date of Sale
-              Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_today,
-                    size: 18,
-                    color: Color(0xFF0A6305),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text("Date of Sale *", style: _labelStyle),
-                ],
-              ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2025),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    setState(() => _selectedDate = picked);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 12,
-                  ),
-                  decoration: _boxDecoration,
-                  child: Text(
-                    _selectedDate != null
-                        ? "${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}"
-                        : "Select Date",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
+              BuyerNameField(controller: _buyerController),
+              const SizedBox(height: 16),
+
+              DatePickerField(
+                selectedDate: _selectedDate,
+                onDatePicked: (picked) =>
+                    setState(() => _selectedDate = picked),
               ),
               const SizedBox(height: 16),
 
-              // Buyer Name
-              Row(
-                children: [
-                  const Icon(Icons.person, size: 18, color: Color(0xFF0A6305)),
-                  const SizedBox(width: 6),
-                  const Text("Buyer Name *", style: _labelStyle),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 12,
-                ),
-                decoration: _boxDecoration,
-                child: TextFormField(
-                  decoration: _inputDecoration("Enter buyer's name"),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Required" : null,
-                ),
+              VariationField(
+                selectedVariation: _selectedVariation,
+                customVariation: _customVariation,
+                variations: _variations,
+                onChanged: (value) =>
+                    setState(() => _selectedVariation = value),
+                onCustomChanged: (val) => _customVariation = val,
               ),
               const SizedBox(height: 16),
 
-              // Quantity Sold
-              Row(
-                children: [
-                  const Icon(Icons.balance, size: 18, color: Color(0xFF0A6305)),
-                  const SizedBox(width: 6),
-                  const Text("Quantity Sold (kg) *", style: _labelStyle),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 12,
-                ),
-                decoration: _boxDecoration,
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: _inputDecoration("0"),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Required" : null,
-                ),
+              QuantityField(
+                quantity: _quantity,
+                onIncrement: () => setState(() => _quantity++),
+                onDecrement: () => setState(() {
+                  if (_quantity > 0) _quantity--;
+                }),
               ),
               const SizedBox(height: 16),
 
-              // Price per kg
-              Row(
-                children: [
-                  const Icon(
-                    Icons.attach_money,
-                    size: 18,
-                    color: Color(0xFF0A6305),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text("Price per kg (₱) *", style: _labelStyle),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 12,
-                ),
-                decoration: _boxDecoration,
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: _inputDecoration("0"),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Required" : null,
-                ),
-              ),
+              PriceField(controller: _priceController),
               const SizedBox(height: 16),
 
-              // Notes
-              Row(
-                children: [
-                  const Icon(
-                    Icons.description,
-                    size: 18,
-                    color: Color(0xFF0A6305),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text("Notes (optional)", style: _labelStyle),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 12,
-                ),
-                decoration: _boxDecoration,
-                child: TextFormField(
-                  maxLines: 3,
-                  decoration: _inputDecoration("Add any additional notes..."),
-                ),
-              ),
+              NotesField(controller: _notesController),
               const SizedBox(height: 80),
             ],
           ),
         ),
       ),
-
-      // Fixed footer with buttons
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              offset: const Offset(0, -2),
-              blurRadius: 6,
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  side: BorderSide(color: Colors.grey.shade400),
-                ),
-                child: const Text("Cancel", style: TextStyle(fontSize: 16)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // TODO: save sale logic
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF0A6305),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "Save Sale",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
+      bottomNavigationBar: AddSaleFooterButtons(
+        onCancel: () => Navigator.pop(context),
+        onSave: _saveSale,
       ),
     );
   }
 }
-
-// Styles
-const _labelStyle = TextStyle(
-  fontSize: 15,
-  fontWeight: FontWeight.w600,
-  color: Colors.black87,
-);
-
-final _boxDecoration = BoxDecoration(
-  color: Colors.white,
-  borderRadius: BorderRadius.circular(12),
-  border: Border.all(color: Colors.grey.shade300),
-);
-
-InputDecoration _inputDecoration(String hint) => InputDecoration(
-  hintText: hint,
-  border: InputBorder.none, // remove default border
-  contentPadding: EdgeInsets.zero, // let outer container handle padding
-);

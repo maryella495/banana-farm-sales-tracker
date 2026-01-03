@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/archive-widgets/sales_count_section.dart';
+import 'package:myapp/archive-widgets/sales_list_section.dart';
+import 'package:myapp/archive-widgets/searchbar_section.dart';
+import 'package:myapp/archive-widgets/variation_utils.dart';
+import 'package:myapp/pages/sales_details_page.dart';
+import 'package:myapp/pages/sections/appbar_section.dart';
+import 'package:myapp/shared/side_menu_item.dart';
 
 class ArchivePage extends StatefulWidget {
   const ArchivePage({super.key});
@@ -17,6 +24,7 @@ class _ArchivePageState extends State<ArchivePage> {
       "quantity": "50",
       "pricePerKg": "45",
       "total": "₱2,000",
+      "variation": "Lakatan",
     },
     {
       "name": "Pedro Garcia",
@@ -24,6 +32,7 @@ class _ArchivePageState extends State<ArchivePage> {
       "quantity": "50",
       "pricePerKg": "45",
       "total": "₱2,000",
+      "variation": "Latundan",
     },
   ];
 
@@ -51,206 +60,124 @@ class _ArchivePageState extends State<ArchivePage> {
     });
   }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Filter by Variation"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ["Lakatan", "Latundan", "Cardava", "Other"].map((
+              variation,
+            ) {
+              return ListTile(
+                leading: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: getVariationColor(variation),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                title: Text(variation),
+                onTap: () {
+                  setState(() {
+                    filteredSales = allSales
+                        .where(
+                          (sale) =>
+                              sale["variation"]?.toLowerCase() ==
+                              variation.toLowerCase(),
+                        )
+                        .toList();
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  filteredSales = allSales; // reset filter
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Clear Filter"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      appBar: AppBar(
-        title: const Text(
-          "Sales Archive",
-          style: TextStyle(fontWeight: FontWeight.bold),
+      appBar: appBar(
+        leadingIcon: CircleAvatar(
+          radius: 24,
+          backgroundColor: Color(0xFFE0E0E0),
+          child: Icon(Icons.archive, color: Color(0xFF0A6305)),
         ),
+        title: "Sales Archive",
+        subtitle: "Sales history records",
+      ),
+      endDrawer: SideMenu(
+        title: "Archive Menu",
+        items: [
+          SideMenuItem(
+            label: "Filter by Variation",
+            icon: Icons.filter_alt,
+            onTap: () {
+              // filter archive
+            },
+          ),
+          SideMenuItem(
+            label: "Sort by Date",
+            icon: Icons.sort,
+            onTap: () {
+              // sort archive
+            },
+          ),
+          SideMenuItem(
+            label: "Export Data",
+            icon: Icons.download,
+            onTap: () {
+              // export archive data
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    offset: const Offset(0, 2),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "Search by buyer name...",
-                  prefixIcon: Icon(Icons.search),
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 14),
-                ),
-              ),
-            ),
+          SearchBarSection(controller: _searchController),
+          SalesCountSection(
+            count: filteredSales.length,
+            onFilterTap: _showFilterDialog,
           ),
-
-          // Sales count
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "${filteredSales.length} sales found",
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+          SalesListSection(
+            sales: filteredSales,
+            onDelete: _deleteSale,
+            getVariationColor: getVariationColor,
+            onTap: (sale) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SaleDetailsPage(
+                    name: sale["name"] ?? "",
+                    date: sale["date"] ?? "",
+                    variation: sale["variation"] ?? "",
+                    amount: sale["total"] ?? "",
+                    quantity: sale["quantity"] ?? "",
+                    pricePerKg: sale["pricePerKg"] ?? "",
+                    notes: sale["notes"] ?? "No notes",
+                  ),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Sales list
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredSales.length,
-              itemBuilder: (context, index) {
-                final sale = filteredSales[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          offset: const Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Row 1: avatar + name/date + price
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Color(0xFFBCDABB),
-                              child: Icon(
-                                Icons.person,
-                                color: Color(0xFF0A6305),
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  sale["name"]!,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.date_range,
-                                      size: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      sale["date"]!,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black.withOpacity(0.6),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Text(
-                              sale["total"]!,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0A6305),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // Row 2: quantity and rate
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.balance,
-                              size: 14,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              "${sale["quantity"]} kg    •    ₱${sale["pricePerKg"]}/kg",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-
-                        // Divider spanning full width
-                        const Divider(
-                          height: 20,
-                          thickness: 0.5,
-                          color: Colors.grey,
-                        ),
-
-                        // Row 3: delete icon + text
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () => _deleteSale(index),
-                              ),
-                              const Text(
-                                "Delete",
-                                style: TextStyle(
-                                  color: Color(0xFFB60D15),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+              );
+            },
           ),
         ],
       ),

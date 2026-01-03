@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/pages/sales_details_page.dart';
+import 'package:myapp/pages/archive_page.dart';
 
 class RecentTransactionSection extends StatelessWidget {
   const RecentTransactionSection({super.key});
@@ -10,6 +11,7 @@ class RecentTransactionSection extends StatelessWidget {
       {
         "name": "Maria Cruz",
         "date": "Dec 15, 2025",
+        "variation": "",
         "amount": "₱200",
         "quantity": "50",
         "pricePerKg": "45",
@@ -18,6 +20,7 @@ class RecentTransactionSection extends StatelessWidget {
       {
         "name": "Juan Santos",
         "date": "Dec 15, 2025",
+        "variation": "",
         "amount": "₱2,000",
         "quantity": "100",
         "pricePerKg": "20",
@@ -30,15 +33,41 @@ class RecentTransactionSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "RECENT TRANSACTIONS",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+          // Header row with "RECENT TRANSACTIONS" and "View All"
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "RECENT TRANSACTIONS",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ArchivePage(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "View All",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0A6305), // green link color
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
+
+          // Transaction list
           ...transactions.map(
             (tx) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -50,6 +79,7 @@ class RecentTransactionSection extends StatelessWidget {
                       builder: (context) => SaleDetailsPage(
                         name: tx["name"]!,
                         date: tx["date"]!,
+                        variation: tx["variation"]!,
                         amount: tx["amount"]!,
                         quantity: tx["quantity"]!,
                         pricePerKg: tx["pricePerKg"]!,
