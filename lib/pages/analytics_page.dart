@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/analytics-widgets/performance_overview_section.dart';
 import 'package:myapp/analytics-widgets/variation_insights_section.dart';
+import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
-import 'package:myapp/shared/side_menu_item.dart';
 
 class AnalyticsPage extends StatelessWidget {
   const AnalyticsPage({super.key});
@@ -35,29 +35,37 @@ class AnalyticsPage extends StatelessWidget {
         ),
         title: "Analytics",
         subtitle: "Insights and performance",
-      ),
-      endDrawer: SideMenu(
-        title: "Analytics Menu",
-        items: [
-          SideMenuItem(
-            label: "Filter by Date",
-            icon: Icons.date_range,
-            onTap: () {
-              // show date picker
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.date_range, color: Color(0xFF0A6305)),
+            tooltip: "Select date range",
+            onPressed: () async {
+              final picked = await showDateRangePicker(
+                context: context,
+                firstDate: DateTime(2025, 1, 1),
+                lastDate: DateTime.now(),
+              );
+              if (picked != null) {
+                // filter analytics data by picked.start and picked.end
+              }
             },
           ),
-          SideMenuItem(
-            label: "Change Chart Type",
-            icon: Icons.bar_chart,
-            onTap: () {
-              // switch chart type
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Color(0xFF0A6305)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(),
+                ),
+              );
             },
           ),
-          SideMenuItem(
-            label: "Export Report",
-            icon: Icons.download,
-            onTap: () {
-              // export analytics report
+          IconButton(
+            icon: const Icon(Icons.download, color: Color(0xFF0A6305)),
+            tooltip: "Download report",
+            onPressed: () {
+              // Implement download functionality here
             },
           ),
         ],

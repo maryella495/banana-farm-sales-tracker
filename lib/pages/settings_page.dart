@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
 import 'package:myapp/settings-widgets/settings_group.dart';
 import 'package:myapp/settings-widgets/sign_out_button.dart';
-import 'package:myapp/shared/side_menu_item.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -18,29 +18,20 @@ class SettingsPage extends StatelessWidget {
         ),
         title: "Settings",
         subtitle: "Manage your preferences",
-      ),
-      endDrawer: SideMenu(
-        title: "Settings Menu",
-        items: [
-          SideMenuItem(
-            label: "Account",
-            icon: Icons.person,
-            onTap: () {
-              // go to Account Settings
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Color(0xFF0A6305)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationPage()),
+              );
             },
           ),
-          SideMenuItem(
-            label: "Notifications",
-            icon: Icons.notifications,
-            onTap: () {
-              // go to Notification Settings
-            },
-          ),
-          SideMenuItem(
-            label: "Help & About",
-            icon: Icons.help,
-            onTap: () {
-              // go to Help & About
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: Color(0xFF0A6305)),
+            onPressed: () {
+              // show help/about dialog
             },
           ),
         ],

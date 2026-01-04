@@ -1,13 +1,20 @@
+// root_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:myapp/pages/dashboard_page.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:myapp/pages/add_sale_page.dart';
 import 'package:myapp/pages/analytics_page.dart';
 import 'package:myapp/pages/archive_page.dart';
+import 'package:myapp/pages/dashboard_page.dart';
 import 'package:myapp/pages/settings_page.dart';
-import 'package:myapp/pages/add_sale_page.dart';
+
+final GlobalKey<_RootPageState> rootPageKey = GlobalKey<_RootPageState>();
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
+
+  static void navigateTo(int index) {
+    rootPageKey.currentState?._setIndex(index);
+  }
 
   @override
   State<RootPage> createState() => _RootPageState();
@@ -19,9 +26,16 @@ class _RootPageState extends State<RootPage> {
   final List<Widget> _pages = const [
     DashboardPage(),
     AnalyticsPage(),
+    SizedBox.shrink(), // placeholder for Add button
     ArchivePage(),
     SettingsPage(),
   ];
+
+  void _setIndex(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +43,7 @@ class _RootPageState extends State<RootPage> {
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex < 2 ? _currentIndex : _currentIndex + 1,
+        currentIndex: _currentIndex,
         onTap: (index) {
           if (index == 2) {
             Navigator.push(
@@ -37,7 +51,7 @@ class _RootPageState extends State<RootPage> {
               MaterialPageRoute(builder: (context) => const AddSalePage()),
             );
           } else {
-            setState(() => _currentIndex = index > 2 ? index - 1 : index);
+            setState(() => _currentIndex = index);
           }
         },
         selectedItemColor: const Color(0xFF0A6305),
@@ -68,7 +82,7 @@ class _RootPageState extends State<RootPage> {
               height: 24,
               width: 24,
               colorFilter: ColorFilter.mode(
-                _currentIndex == 2 ? const Color(0xFF0A6305) : Colors.black54,
+                _currentIndex == 3 ? const Color(0xFF0A6305) : Colors.black54,
                 BlendMode.srcIn,
               ),
             ),

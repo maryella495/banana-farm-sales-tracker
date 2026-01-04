@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/dashboard-widgets/dashboard_header_section.dart';
 import 'package:myapp/dashboard-widgets/recent_transaction_section.dart';
+import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
-import 'package:myapp/pages/settings_page.dart';
-import 'package:myapp/shared/side_menu_item.dart';
 
 //HOMEPAGE
 class DashboardPage extends StatelessWidget {
@@ -18,32 +17,23 @@ class DashboardPage extends StatelessWidget {
           height: 40,
         ), // logo
         title: "BananaTrack",
-      ),
-      endDrawer: SideMenu(
-        title: "Dashboard Menu",
-        items: [
-          SideMenuItem(
-            label: "Notifications",
-            icon: Icons.notifications,
-            onTap: () {
-              /* go to NotificationPage */
-            },
-          ),
-          SideMenuItem(
-            label: "Export Summary",
-            icon: Icons.download,
-            onTap: () {
-              /* export summary */
-            },
-          ),
-          SideMenuItem(
-            label: "Settings",
-            icon: Icons.settings,
-            onTap: () {
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Color(0xFF0A6305)),
+            onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(),
+                ),
               );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.upload, color: Color(0xFF0A6305)),
+            tooltip: "Upload data",
+            onPressed: () {
+              // Implement upload functionality here
             },
           ),
         ],

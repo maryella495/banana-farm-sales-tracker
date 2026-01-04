@@ -49,17 +49,7 @@ class appBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      actions: [
-        Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Color(0xFF0A6305)),
-            onPressed: () {
-              Scaffold.of(context).openEndDrawer(); // now works
-            },
-          ),
-        ),
-      ],
-
+      actions: actions,
       toolbarHeight: 80,
     );
   }

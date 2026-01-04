@@ -7,7 +7,7 @@ import 'package:myapp/salesdetails-widgets/ed_footer_buttons_section.dart';
 class SaleDetailsPage extends StatelessWidget {
   final String name;
   final String date;
-  final String variation; // ✅ new field
+  final String variation;
   final String amount;
   final String quantity;
   final String pricePerKg;
@@ -17,7 +17,7 @@ class SaleDetailsPage extends StatelessWidget {
     super.key,
     required this.name,
     required this.date,
-    required this.variation, // ✅ required
+    required this.variation,
     required this.amount,
     required this.quantity,
     required this.pricePerKg,
@@ -42,13 +42,13 @@ class SaleDetailsPage extends StatelessWidget {
             SalesInfoSection(
               name: name,
               date: date,
-              variation: variation, // ✅ passed down
+              variation: variation,
               quantity: quantity,
               pricePerKg: pricePerKg,
             ),
             const SizedBox(height: 16),
             NotesSection(notes: notes),
-            const SizedBox(height: 80), // space so footer doesn't overlap
+            const SizedBox(height: 80),
           ],
         ),
       ),

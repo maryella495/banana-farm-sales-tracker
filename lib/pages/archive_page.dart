@@ -3,9 +3,9 @@ import 'package:myapp/archive-widgets/sales_count_section.dart';
 import 'package:myapp/archive-widgets/sales_list_section.dart';
 import 'package:myapp/archive-widgets/searchbar_section.dart';
 import 'package:myapp/archive-widgets/variation_utils.dart';
+import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sales_details_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
-import 'package:myapp/shared/side_menu_item.dart';
 
 class ArchivePage extends StatefulWidget {
   const ArchivePage({super.key});
@@ -124,30 +124,20 @@ class _ArchivePageState extends State<ArchivePage> {
         ),
         title: "Sales Archive",
         subtitle: "Sales history records",
-      ),
-      endDrawer: SideMenu(
-        title: "Archive Menu",
-        items: [
-          SideMenuItem(
-            label: "Filter by Variation",
-            icon: Icons.filter_alt,
-            onTap: () {
-              // filter archive
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Color(0xFF0A6305)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationPage()),
+              );
             },
           ),
-          SideMenuItem(
-            label: "Sort by Date",
-            icon: Icons.sort,
-            onTap: () {
-              // sort archive
-            },
-          ),
-          SideMenuItem(
-            label: "Export Data",
-            icon: Icons.download,
-            onTap: () {
-              // export archive data
-            },
+          IconButton(
+            icon: Icon(Icons.download, color: Color(0xFF0A6305)),
+            tooltip: "Download report",
+            onPressed: null, // Implement download functionality here
           ),
         ],
       ),
