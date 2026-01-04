@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TotalEarnedSection extends StatelessWidget {
-  final String amount;
+  final num amount;
   const TotalEarnedSection({super.key, required this.amount});
 
   @override
@@ -25,7 +25,7 @@ class TotalEarnedSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            amount,
+            "₱${amount.toStringAsFixed(2)}",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 28,

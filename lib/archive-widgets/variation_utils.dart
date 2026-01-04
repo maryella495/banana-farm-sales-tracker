@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-Color getVariationColor(String variation) {
-  switch (variation.toLowerCase()) {
+Color getVariationColor(String? variety) {
+  if (variety == null || variety.isEmpty) return Colors.grey;
+  switch (variety.toLowerCase()) {
     case "lakatan":
       return Colors.green;
     case "latundan":
-      return Colors.yellow[700]!;
+      return Colors.yellow.shade700;
     case "cardava":
       return Colors.red;
     default:

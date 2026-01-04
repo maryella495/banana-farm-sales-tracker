@@ -17,10 +17,10 @@ class NotesSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              const Icon(Icons.description, color: Color(0xFF0A6305), size: 22),
-              const SizedBox(width: 4),
-              const Text(
+            children: const [
+              Icon(Icons.description, color: Color(0xFF0A6305), size: 22),
+              SizedBox(width: 4),
+              Text(
                 "Notes",
                 style: TextStyle(
                   fontSize: 14,
@@ -30,10 +30,14 @@ class NotesSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             notes.isNotEmpty ? notes : "—",
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              fontStyle: notes.isEmpty ? FontStyle.italic : FontStyle.normal,
+              color: notes.isEmpty ? Colors.black38 : Colors.black,
+            ),
           ),
         ],
       ),

@@ -10,7 +10,7 @@ class SearchBarSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -25,12 +25,23 @@ class SearchBarSection extends StatelessWidget {
         ),
         child: TextField(
           controller: controller,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Search by buyer name...",
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search),
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+            // 👇 Clear button appears only when text is entered
+            suffixIcon: controller.text.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      controller.clear();
+                      // optional: close keyboard
+                      FocusScope.of(context).unfocus();
+                    },
+                  )
+                : null,
           ),
         ),
       ),

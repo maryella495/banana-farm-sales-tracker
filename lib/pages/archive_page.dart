@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:myapp/archive-widgets/sales_count_section.dart';
 import 'package:myapp/archive-widgets/sales_list_section.dart';
 import 'package:myapp/archive-widgets/searchbar_section.dart';
@@ -6,6 +7,8 @@ import 'package:myapp/archive-widgets/variation_utils.dart';
 import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sales_details_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
+import 'package:myapp/providers/sales_provider.dart';
+import 'package:myapp/models/sale.dart';
 
 class ArchivePage extends StatefulWidget {
   const ArchivePage({super.key});
@@ -16,56 +19,35 @@ class ArchivePage extends StatefulWidget {
 
 class _ArchivePageState extends State<ArchivePage> {
   final TextEditingController _searchController = TextEditingController();
-
-  final List<Map<String, String>> allSales = [
-    {
-      "name": "Maria Cruz",
-      "date": "Dec 5, 2025",
-      "quantity": "50",
-      "pricePerKg": "45",
-      "total": "₱2,000",
-      "variation": "Lakatan",
-    },
-    {
-      "name": "Pedro Garcia",
-      "date": "Dec 5, 2025",
-      "quantity": "50",
-      "pricePerKg": "45",
-      "total": "₱2,000",
-      "variation": "Latundan",
-    },
-  ];
-
-  List<Map<String, String>> filteredSales = [];
+  List<Sale> filteredSales = [];
 
   @override
   void initState() {
     super.initState();
-    filteredSales = allSales;
     _searchController.addListener(_filterSales);
   }
 
   void _filterSales() {
     final query = _searchController.text.toLowerCase();
+    final allSales = context.read<SalesProvider>().sales;
     setState(() {
       filteredSales = allSales
-          .where((sale) => sale["name"]!.toLowerCase().contains(query))
+          .where((sale) => sale.buyer.toLowerCase().contains(query))
           .toList();
     });
   }
 
-  void _deleteSale(int index) {
-    setState(() {
-      filteredSales.removeAt(index);
-    });
+  void _deleteSale(Sale sale) {
+    context.read<SalesProvider>().deleteSale(sale.id);
+    _filterSales(); // refresh filtered list
   }
 
-  void _showFilterDialog() {
+  void _showFilterDialog(List<Sale> allSales) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Filter by Variation"),
+          title: const Text("Filter by Variety"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: ["Lakatan", "Latundan", "Cardava", "Other"].map((
@@ -86,7 +68,7 @@ class _ArchivePageState extends State<ArchivePage> {
                     filteredSales = allSales
                         .where(
                           (sale) =>
-                              sale["variation"]?.toLowerCase() ==
+                              sale.variety.toLowerCase() ==
                               variation.toLowerCase(),
                         )
                         .toList();
@@ -114,10 +96,15 @@ class _ArchivePageState extends State<ArchivePage> {
 
   @override
   Widget build(BuildContext context) {
+    final allSales = context.watch<SalesProvider>().sales;
+    if (filteredSales.isEmpty && _searchController.text.isEmpty) {
+      filteredSales = allSales;
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       appBar: appBar(
-        leadingIcon: CircleAvatar(
+        leadingIcon: const CircleAvatar(
           radius: 24,
           backgroundColor: Color(0xFFE0E0E0),
           child: Icon(Icons.archive, color: Color(0xFF0A6305)),
@@ -126,7 +113,7 @@ class _ArchivePageState extends State<ArchivePage> {
         subtitle: "Sales history records",
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Color(0xFF0A6305)),
+            icon: const Icon(Icons.notifications, color: Color(0xFF0A6305)),
             onPressed: () {
               Navigator.push(
                 context,
@@ -135,9 +122,9 @@ class _ArchivePageState extends State<ArchivePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.download, color: Color(0xFF0A6305)),
+            icon: const Icon(Icons.download, color: Color(0xFF0A6305)),
             tooltip: "Download report",
-            onPressed: null, // Implement download functionality here
+            onPressed: null, // implement export later
           ),
         ],
       ),
@@ -146,28 +133,22 @@ class _ArchivePageState extends State<ArchivePage> {
           SearchBarSection(controller: _searchController),
           SalesCountSection(
             count: filteredSales.length,
-            onFilterTap: _showFilterDialog,
+            onFilterTap: () => _showFilterDialog(allSales),
           ),
-          SalesListSection(
-            sales: filteredSales,
-            onDelete: _deleteSale,
-            getVariationColor: getVariationColor,
-            onTap: (sale) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SaleDetailsPage(
-                    name: sale["name"] ?? "",
-                    date: sale["date"] ?? "",
-                    variation: sale["variation"] ?? "",
-                    amount: sale["total"] ?? "",
-                    quantity: sale["quantity"] ?? "",
-                    pricePerKg: sale["pricePerKg"] ?? "",
-                    notes: sale["notes"] ?? "No notes",
+          Expanded(
+            child: SalesListSection(
+              sales: filteredSales,
+              onDelete: _deleteSale,
+              getVariationColor: getVariationColor,
+              onTap: (sale) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SaleDetailsPage(sale: sale),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),

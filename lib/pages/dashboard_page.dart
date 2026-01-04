@@ -4,7 +4,6 @@ import 'package:myapp/dashboard-widgets/recent_transaction_section.dart';
 import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
 
-//HOMEPAGE
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -38,13 +37,10 @@ class DashboardPage extends StatelessWidget {
           ),
         ],
       ),
-
       body: ListView(
         children: const [
           DashboardHeader(),
-          const SizedBox(height: 100),
-          //RevenueSection(),
-          //ActionButtonsSection(),
+          SizedBox(height: 120), // spacing so RevenueSection overlaps nicely
           RecentTransactionSection(),
         ],
       ),

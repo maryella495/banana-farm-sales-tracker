@@ -1,39 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/pages/root_page.dart';
+import 'package:provider/provider.dart';
 import 'package:myapp/pages/sales_details_page.dart';
 import 'package:myapp/pages/archive_page.dart';
+import 'package:myapp/providers/sales_provider.dart';
 
 class RecentTransactionSection extends StatelessWidget {
   const RecentTransactionSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final transactions = [
-      {
-        "name": "Maria Cruz",
-        "date": "Dec 15, 2025",
-        "variation": "",
-        "amount": "₱200",
-        "quantity": "50",
-        "pricePerKg": "45",
-        "notes": "Regular customer",
-      },
-      {
-        "name": "Juan Santos",
-        "date": "Dec 15, 2025",
-        "variation": "",
-        "amount": "₱2,000",
-        "quantity": "100",
-        "pricePerKg": "20",
-        "notes": "",
-      },
-    ];
+    final sales = context.watch<SalesProvider>().sales;
+
+    // Show last 5 transactions, newest first
+    final recent = sales.reversed.take(5).toList();
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row with "RECENT TRANSACTIONS" and "View All"
+          // Header row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -47,19 +34,14 @@ class RecentTransactionSection extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ArchivePage(),
-                    ),
-                  );
+                  RootPage.navigateTo(3);
                 },
                 child: const Text(
                   "View All",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF0A6305), // green link color
+                    color: Color(0xFF0A6305),
                   ),
                 ),
               ),
@@ -68,87 +50,82 @@ class RecentTransactionSection extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Transaction list
-          ...transactions.map(
-            (tx) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SaleDetailsPage(
-                        name: tx["name"]!,
-                        date: tx["date"]!,
-                        variation: tx["variation"]!,
-                        amount: tx["amount"]!,
-                        quantity: tx["quantity"]!,
-                        pricePerKg: tx["pricePerKg"]!,
-                        notes: tx["notes"]!,
+          if (recent.isEmpty)
+            const Text("No transactions yet")
+          else
+            ...recent.map(
+              (sale) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SaleDetailsPage(sale: sale),
                       ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          offset: const Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
                     ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: const Color(0xFFBCDABB),
-                        child: const Icon(
-                          Icons.person,
-                          color: Color(0xFF0A6305),
-                          size: 24,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: const Color(0xFFBCDABB),
+                          child: const Icon(
+                            Icons.person,
+                            color: Color(0xFF0A6305),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tx["name"]!,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                sale.buyer,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              tx["date"]!,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black.withOpacity(0.6),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${sale.date.toLocal()}".split(' ')[0],
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black.withOpacity(0.6),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        tx["amount"]!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Color(0xFF0A6305),
+                        Text(
+                          "₱${sale.price * sale.quantity}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Color(0xFF0A6305),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

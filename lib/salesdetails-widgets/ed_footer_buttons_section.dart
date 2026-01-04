@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:myapp/models/sale.dart';
+import 'package:myapp/providers/sales_provider.dart';
 
 class EDFooterButtons extends StatelessWidget {
-  const EDFooterButtons({super.key});
+  final Sale sale;
+
+  const EDFooterButtons({super.key, required this.sale});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,14 @@ class EDFooterButtons extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                // Placeholder: show a message until you implement editing
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Edit feature not available yet"),
+                  ),
+                );
+              },
               icon: const Icon(Icons.edit, color: Colors.black),
               label: const Text(
                 "Edit Sale",
@@ -30,9 +42,7 @@ class EDFooterButtons extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    10,
-                  ), // ✅ same as delete button
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
@@ -40,7 +50,49 @@ class EDFooterButtons extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Confirm Deletion"),
+                    content: const Text(
+                      "Are you sure you want to delete this sale? This action cannot be undone.",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFB60D15),
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text(
+                          "Delete",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  context.read<SalesProvider>().deleteSale(sale.id);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Sale deleted successfully"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+
+                  Navigator.pop(context);
+                }
+              },
               icon: const Icon(Icons.delete_outline),
               label: const Text("Delete Sale"),
               style: ElevatedButton.styleFrom(
@@ -48,7 +100,7 @@ class EDFooterButtons extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // ✅ same radius
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),

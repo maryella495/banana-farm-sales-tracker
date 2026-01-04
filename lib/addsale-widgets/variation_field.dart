@@ -46,12 +46,9 @@ class VariationField extends StatelessWidget {
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
             decoration: const InputDecoration(border: InputBorder.none),
-            items: [
-              ...variations.map(
-                (v) => DropdownMenuItem(value: v, child: Text(v)),
-              ),
-              const DropdownMenuItem(value: "Other", child: Text("Other")),
-            ],
+            items: variations
+                .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                .toList(),
             onChanged: onChanged,
             validator: (value) => value == null ? "Required" : null,
           ),

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 class SalesInfoSection extends StatelessWidget {
   final String name;
-  final String date;
-  final String variation; // ✅ new field
-  final String quantity;
-  final String pricePerKg;
+  final DateTime date;
+  final String variation;
+  final num quantity;
+  final num pricePerKg;
 
   const SalesInfoSection({
     super.key,
     required this.name,
     required this.date,
-    required this.variation, // ✅ required
+    required this.variation,
     required this.quantity,
     required this.pricePerKg,
   });
@@ -29,9 +29,13 @@ class SalesInfoSection extends StatelessWidget {
         children: [
           _detailRow(Icons.person, "Buyer Name", name),
           _divider(),
-          _detailRow(Icons.calendar_today, "Date of Sale", date),
+          _detailRow(
+            Icons.calendar_today,
+            "Date of Sale",
+            "${date.day}/${date.month}/${date.year}",
+          ),
           _divider(),
-          _detailRow(Icons.local_offer, "Variation", variation), // ✅ new field
+          _detailRow(Icons.local_offer, "Variation", variation),
           _divider(),
           _detailRow(Icons.balance, "Quantity Sold", "$quantity kg"),
           _divider(),
@@ -51,23 +55,28 @@ class SalesInfoSection extends StatelessWidget {
           child: Icon(icon, color: const Color(0xFF0A6305), size: 22),
         ),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-                fontWeight: FontWeight.w500,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

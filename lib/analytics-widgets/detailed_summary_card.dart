@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class DetailedSummaryCard extends StatelessWidget {
   final IconData icon;
-  final Color iconColor; // allow different icon colors
+  final Color iconColor;
   final String label;
   final String name;
   final String date;

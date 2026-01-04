@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class PriceField extends StatelessWidget {
   final TextEditingController controller;
-  const PriceField({super.key, required this.controller});
+  final String? Function(String?)? validator;
+
+  const PriceField({super.key, required this.controller, this.validator});
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +33,7 @@ class PriceField extends StatelessWidget {
             controller: controller,
             keyboardType: TextInputType.number,
             decoration: _inputDecoration("0"),
-            validator: (value) =>
-                value == null || value.isEmpty ? "Required" : null,
+            validator: validator,
           ),
         ),
       ],

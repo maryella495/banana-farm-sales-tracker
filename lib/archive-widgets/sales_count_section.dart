@@ -13,16 +13,17 @@ class SalesCountSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "$count sales found",
+            "$count sale${count == 1 ? '' : 's'} found",
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           IconButton(
             icon: const Icon(Icons.filter_list, color: Color(0xFF0A6305)),
+            tooltip: "Filter by variation",
             onPressed: onFilterTap,
           ),
         ],

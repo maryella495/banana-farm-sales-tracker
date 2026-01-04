@@ -1,58 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/salesdetails-widgets/total_earned_section.dart';
-import 'package:myapp/salesdetails-widgets/sales_info_section.dart';
-import 'package:myapp/salesdetails-widgets/notes_section.dart';
+import 'package:myapp/models/sale.dart';
 import 'package:myapp/salesdetails-widgets/ed_footer_buttons_section.dart';
+import 'package:myapp/salesdetails-widgets/notes_section.dart';
+import 'package:myapp/salesdetails-widgets/sales_info_section.dart';
+import 'package:myapp/salesdetails-widgets/total_earned_section.dart';
 
 class SaleDetailsPage extends StatelessWidget {
-  final String name;
-  final String date;
-  final String variation;
-  final String amount;
-  final String quantity;
-  final String pricePerKg;
-  final String notes;
+  final Sale sale;
 
-  const SaleDetailsPage({
-    super.key,
-    required this.name,
-    required this.date,
-    required this.variation,
-    required this.amount,
-    required this.quantity,
-    required this.pricePerKg,
-    required this.notes,
-  });
+  const SaleDetailsPage({super.key, required this.sale});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Sale Details",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
+      appBar: AppBar(title: const Text("Sale Details")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TotalEarnedSection(amount: amount),
-            const SizedBox(height: 24),
+            //
+            TotalEarnedSection(amount: sale.quantity * sale.price),
+            const SizedBox(height: 16),
+
+            //
             SalesInfoSection(
-              name: name,
-              date: date,
-              variation: variation,
-              quantity: quantity,
-              pricePerKg: pricePerKg,
+              name: sale.buyer,
+              date: sale.date,
+              variation: sale.variety,
+              quantity: sale.quantity,
+              pricePerKg: sale.price,
             ),
             const SizedBox(height: 16),
-            NotesSection(notes: notes),
-            const SizedBox(height: 80),
+
+            //
+            NotesSection(notes: sale.notes ?? ""),
           ],
         ),
       ),
-      bottomNavigationBar: const EDFooterButtons(),
+
+      //
+      bottomNavigationBar: EDFooterButtons(sale: sale),
     );
   }
 }
