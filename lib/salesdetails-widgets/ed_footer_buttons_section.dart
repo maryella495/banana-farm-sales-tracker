@@ -30,7 +30,13 @@ class EDFooterButtons extends StatelessWidget {
                 // Placeholder: show a message until you implement editing
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Edit feature not available yet"),
+                    content: Text(
+                      "Edit feature not available yet",
+                      style: TextStyle(
+                        color: Colors.white,
+                        backgroundColor: Color(0xFF0A6305),
+                      ),
+                    ),
                   ),
                 );
               },

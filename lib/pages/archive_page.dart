@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/archive-widgets/active_filters_bar_section.dart';
+import 'package:myapp/archive-widgets/filter_dialog_section.dart';
+import 'package:myapp/services/export_service.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/archive-widgets/sales_count_section.dart';
 import 'package:myapp/archive-widgets/sales_list_section.dart';
@@ -19,87 +22,56 @@ class ArchivePage extends StatefulWidget {
 
 class _ArchivePageState extends State<ArchivePage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Sale> filteredSales = [];
+  String? _selectedVariety;
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterSales);
-  }
-
-  void _filterSales() {
-    final query = _searchController.text.toLowerCase();
-    final allSales = context.read<SalesProvider>().sales;
-    setState(() {
-      filteredSales = allSales
-          .where((sale) => sale.buyer.toLowerCase().contains(query))
-          .toList();
-    });
+    _searchController.addListener(() => setState(() {})); // re-render on search
   }
 
   void _deleteSale(Sale sale) {
     context.read<SalesProvider>().deleteSale(sale.id);
-    _filterSales(); // refresh filtered list
   }
 
-  void _showFilterDialog(List<Sale> allSales) {
+  void _showFilterDialog() {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Filter by Variety"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ["Lakatan", "Latundan", "Cardava", "Other"].map((
-              variation,
-            ) {
-              return ListTile(
-                leading: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: getVariationColor(variation),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                title: Text(variation),
-                onTap: () {
-                  setState(() {
-                    filteredSales = allSales
-                        .where(
-                          (sale) =>
-                              sale.variety.toLowerCase() ==
-                              variation.toLowerCase(),
-                        )
-                        .toList();
-                  });
-                  Navigator.pop(context);
-                },
-              );
-            }).toList(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  filteredSales = allSales; // reset filter
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Clear Filter"),
-            ),
-          ],
-        );
-      },
+      builder: (_) => FilterDialog(
+        selectedVariety: _selectedVariety,
+        onVarietySelected: (v) => setState(() => _selectedVariety = v),
+        onDateRangeSelected: (range) {
+          if (range != null) {
+            context.read<SalesProvider>().setFilterRange(range);
+          }
+        },
+        onClear: () {
+          context.read<SalesProvider>().clearFilter();
+          setState(() {
+            _selectedVariety = null;
+            _searchController.clear();
+          });
+        },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final allSales = context.watch<SalesProvider>().sales;
-    if (filteredSales.isEmpty && _searchController.text.isEmpty) {
-      filteredSales = allSales;
-    }
+    final provider = context.watch<SalesProvider>();
+    final dateFiltered = provider.sales;
+
+    // Layer local filters: search and variety
+    final query = _searchController.text.trim().toLowerCase();
+    final displayedSales = dateFiltered.where((sale) {
+      final buyer = sale.buyer?.toLowerCase() ?? "";
+      final variety = sale.variety?.toLowerCase() ?? "";
+      final matchesSearch = query.isEmpty || buyer.contains(query);
+      final matchesVariety =
+          _selectedVariety == null ||
+          variety == _selectedVariety!.toLowerCase();
+      return matchesSearch && matchesVariety;
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
@@ -124,20 +96,37 @@ class _ArchivePageState extends State<ArchivePage> {
           IconButton(
             icon: const Icon(Icons.download, color: Color(0xFF0A6305)),
             tooltip: "Download report",
-            onPressed: null, // implement export later
+            onPressed: () async {
+              final provider = context.read<SalesProvider>();
+              final file = await ExportService.exportSalesToCsv(provider.sales);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: const Color(0xFF0A6305),
+                  content: Text("Report exported: ${file.path}"),
+                ),
+              );
+            },
           ),
         ],
       ),
       body: Column(
         children: [
           SearchBarSection(controller: _searchController),
+
+          ActiveFiltersBar(
+            selectedVariety: _selectedVariety,
+            searchQuery: query,
+            onClearVariety: () => setState(() => _selectedVariety = null),
+            onClearSearch: () => setState(() => _searchController.clear()),
+          ),
+
           SalesCountSection(
-            count: filteredSales.length,
-            onFilterTap: () => _showFilterDialog(allSales),
+            count: displayedSales.length,
+            onFilterTap: _showFilterDialog,
           ),
           Expanded(
             child: SalesListSection(
-              sales: filteredSales,
+              sales: displayedSales,
               onDelete: _deleteSale,
               getVariationColor: getVariationColor,
               onTap: (sale) {

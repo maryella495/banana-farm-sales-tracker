@@ -23,7 +23,7 @@ class SalesCountSection extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.filter_list, color: Color(0xFF0A6305)),
-            tooltip: "Filter by variation",
+            tooltip: "Filter by variety or date",
             onPressed: onFilterTap,
           ),
         ],

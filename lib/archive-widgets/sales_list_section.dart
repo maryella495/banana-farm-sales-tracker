@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/sale.dart';
+import 'sale_card.dart';
 
-class SalesListSection extends StatelessWidget {
+class SalesListSection extends StatefulWidget {
   final List<Sale> sales;
   final void Function(Sale sale) onDelete;
   final Color Function(String) getVariationColor;
@@ -16,205 +17,63 @@ class SalesListSection extends StatelessWidget {
   });
 
   @override
+  State<SalesListSection> createState() => _SalesListSectionState();
+}
+
+class _SalesListSectionState extends State<SalesListSection> {
+  static const int _pageSize = 20; // how many items per page
+  int _currentMax = 20;
+
+  @override
   Widget build(BuildContext context) {
+    if (widget.sales.isEmpty) {
+      return const Center(
+        child: Text(
+          "No sales found",
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
+    final displayedSales = widget.sales.take(_currentMax).toList();
+
     return ListView.builder(
-      itemCount: sales.length,
+      itemCount: displayedSales.length + 1, // +1 for "Load more" button
       itemBuilder: (context, index) {
-        final sale = sales[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: InkWell(
-            onTap: () {
-              if (onTap != null) onTap!(sale);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    offset: const Offset(0, 2),
-                    blurRadius: 4,
+        if (index < displayedSales.length) {
+          final sale = displayedSales[index];
+          return SaleCard(
+            sale: sale,
+            onDelete: widget.onDelete,
+            getVariationColor: widget.getVariationColor,
+            onTap: widget.onTap,
+          );
+        } else {
+          // Load more button
+          final hasMore = _currentMax < widget.sales.length;
+          return hasMore
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0A6305),
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _currentMax = (_currentMax + _pageSize).clamp(
+                            0,
+                            widget.sales.length,
+                          );
+                        });
+                      },
+                      child: const Text("Load more"),
+                    ),
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Buyer + date + total
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Color(0xFFBCDABB),
-                        child: Icon(Icons.person, color: Color(0xFF0A6305)),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            sale.buyer,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.date_range,
-                                size: 14,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "${sale.date.toLocal()}".split(' ')[0],
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        "₱${(sale.price * sale.quantity).toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0A6305),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Weight + Price per kilo
-                  Row(
-                    children: [
-                      const Icon(Icons.balance, size: 14, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        "${sale.quantity} kg",
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        "•",
-                        style: TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "₱${sale.price}/kg",
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Divider(),
-                  // Variation badge + delete
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFDCF5DC),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: getVariationColor(sale.variety),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(sale.variety),
-                          ],
-                        ),
-                      ),
-
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.red,
-                            ),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text("Confirm Deletion"),
-                                  content: const Text(
-                                    "Are you sure you want to delete this sale? This action cannot be undone.",
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      child: const Text(
-                                        "Cancel",
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                    ),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFFB60D15,
-                                        ),
-                                      ),
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      child: const Text(
-                                        "Delete",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (confirm == true) {
-                                onDelete(sale);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: Color(0xFF0A6305),
-                                    content: Text(
-                                      "Sale deleted successfully",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                          const Text(
-                            "Delete",
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+                )
+              : const SizedBox.shrink();
+        }
       },
     );
   }

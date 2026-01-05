@@ -40,7 +40,7 @@ class _AddSalePageState extends State<AddSalePage> {
         id: DateTime.now().millisecondsSinceEpoch,
         variety: _selectedVariation ?? _customVariation ?? "Unknown",
         quantity: _quantity,
-        price: double.parse(_priceController.text), // ✅ require valid price
+        price: double.parse(_priceController.text),
         buyer: _buyerController.text,
         date: _selectedDate,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
@@ -48,9 +48,15 @@ class _AddSalePageState extends State<AddSalePage> {
 
       context.read<SalesProvider>().addSale(sale);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Sale added successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Sale added successfully",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Color(0xFF0A6305),
+        ),
+      );
 
       // Reset form fields
       _buyerController.clear();
@@ -144,7 +150,7 @@ class _AddSalePageState extends State<AddSalePage> {
       ),
       bottomNavigationBar: AddSaleFooterButtons(
         onCancel: () => Navigator.pop(context),
-        onSave: _saveSale, // ✅ cleaner: reuse the method
+        onSave: _saveSale,
       ),
     );
   }

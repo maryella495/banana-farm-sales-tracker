@@ -3,14 +3,21 @@ import 'package:flutter/material.dart';
 class SummaryCard extends StatelessWidget {
   final String label;
   final String value;
+  final Color? valueColor;
 
-  const SummaryCard({super.key, required this.label, required this.value});
+  const SummaryCard({
+    super.key,
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -26,13 +33,13 @@ class SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: valueColor ?? Colors.black,
             ),
           ),
         ],

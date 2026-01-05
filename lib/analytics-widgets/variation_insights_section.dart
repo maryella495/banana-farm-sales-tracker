@@ -6,16 +6,17 @@ import 'package:myapp/providers/sales_provider.dart';
 import 'package:myapp/models/sale.dart';
 
 class VariationInsightsSection extends StatelessWidget {
-  final Map<String, int> variationSales;
+  final Map<String, double> variationSales;
 
   const VariationInsightsSection({super.key, required this.variationSales});
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<SalesProvider>();
     final sales = context.watch<SalesProvider>().sales;
 
     // Top selling variation
-    MapEntry<String, int>? topVariation;
+    MapEntry<String, double>? topVariation;
     if (variationSales.isNotEmpty) {
       topVariation = variationSales.entries.reduce(
         (a, b) => a.value > b.value ? a : b,
@@ -27,6 +28,7 @@ class VariationInsightsSection extends StatelessWidget {
     for (final s in sales) {
       grouped.putIfAbsent(s.variety, () => []).add(s);
     }
+
     String? highestAvgVariety;
     double highestAvgPrice = 0;
     grouped.forEach((variety, list) {
@@ -70,9 +72,9 @@ class VariationInsightsSection extends StatelessWidget {
               iconColor: const Color(0xFF0A6305),
               label: "Top Selling Variation",
               name: topVariation.key,
-              date: "This week",
+              date: provider.filterLabel,
               variation: "",
-              value: "₱${topVariation.value}",
+              value: "₱${topVariation.value.toStringAsFixed(0)}",
               valueColor: const Color(0xFF0A6305),
             ),
           if (highestAvgVariety != null)
@@ -81,7 +83,7 @@ class VariationInsightsSection extends StatelessWidget {
               iconColor: const Color(0xFFE6A10C),
               label: "Highest Avg Price Variation",
               name: highestAvgVariety!,
-              date: "This month",
+              date: provider.filterLabel,
               variation: "",
               value: "₱${highestAvgPrice.toStringAsFixed(2)}/kg",
               valueColor: const Color(0xFFE6A10C),

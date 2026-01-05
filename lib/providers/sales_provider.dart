@@ -1,10 +1,48 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/models/sale.dart';
 
 class SalesProvider extends ChangeNotifier {
   final List<Sale> _sales = [];
+  DateTimeRange? _filterRange;
+  DateTimeRange? get filterRange => _filterRange;
 
-  List<Sale> get sales => List.unmodifiable(_sales);
+  List<Sale> get sales {
+    if (_filterRange == null) return List.unmodifiable(_sales);
+    return _sales.where((s) {
+      final saleDate = DateTime(s.date.year, s.date.month, s.date.day);
+      return !saleDate.isBefore(_filterRange!.start) &&
+          !saleDate.isAfter(_filterRange!.end);
+    }).toList();
+  }
+
+  void setFilterRange(DateTimeRange? range) {
+    _filterRange = range;
+    notifyListeners();
+  }
+
+  void clearFilter() {
+    _filterRange = null;
+    notifyListeners();
+  }
+
+  void filterThisWeek() {
+    final now = DateTime.now();
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1)); // Monday midnight
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    setFilterRange(DateTimeRange(start: startOfWeek, end: endOfWeek));
+  }
+
+  void filterThisMonth() {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    setFilterRange(DateTimeRange(start: startOfMonth, end: endOfMonth));
+  }
 
   void addSale(Sale sale) {
     _sales.add(sale);
@@ -20,29 +58,61 @@ class SalesProvider extends ChangeNotifier {
   }
 
   void deleteSale(int id) {
-    print("Deleting sale with id: $id");
     _sales.removeWhere((sale) => sale.id == id);
-    print("Remaining sales: ${_sales.length}");
     notifyListeners();
   }
 
-  // ✅ Optional analytics helpers
   double get totalRevenue => _sales.fold(0.0, (sum, sale) => sum + sale.total);
 
   double get weekRevenue {
     final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1)); // Monday midnight
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+
     return _sales
-        .where((sale) => sale.date.isAfter(startOfWeek))
+        .where((sale) {
+          final d = DateTime(sale.date.year, sale.date.month, sale.date.day);
+          return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
+        })
         .fold(0.0, (sum, sale) => sum + sale.total);
   }
 
   double get monthRevenue {
     final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
     return _sales
-        .where(
-          (sale) => sale.date.year == now.year && sale.date.month == now.month,
-        )
+        .where((sale) {
+          final d = DateTime(sale.date.year, sale.date.month, sale.date.day);
+          return !d.isBefore(startOfMonth) && !d.isAfter(endOfMonth);
+        })
         .fold(0.0, (sum, sale) => sum + sale.total);
+  }
+
+  String get filterLabel {
+    if (_filterRange == null) return "Overall";
+
+    final start = _filterRange!.start;
+    final end = _filterRange!.end;
+
+    final now = DateTime.now();
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    if (start == startOfWeek && end == endOfWeek) return "This week";
+
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    if (start == startOfMonth && end == endOfMonth) return "This month";
+
+    return "${DateFormat('MMM d').format(start)} - ${DateFormat('MMM d').format(end)}";
   }
 }

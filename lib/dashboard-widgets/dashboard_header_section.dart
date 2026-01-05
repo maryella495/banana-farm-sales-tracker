@@ -41,26 +41,26 @@ class DashboardHeader extends StatelessWidget {
                   text: "Welcome back, Farmer! 🍌\n",
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Colors.white, // darker for emphasis
+                    color: Colors.white,
                   ),
                 ),
                 const TextSpan(
                   text: "\nThis is your ",
                   style: TextStyle(
-                    color: Colors.white, // lighter
+                    color: Colors.white,
                   ),
                 ),
                 const TextSpan(
                   text: "Banana Farm Sales Tracker",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // bold and darker
+                    color: Colors.white, 
                   ),
                 ),
                 const TextSpan(
                   text: " — monitor sales and grow your business.",
                   style: TextStyle(
-                    color: Colors.white, // lighter
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -70,7 +70,7 @@ class DashboardHeader extends StatelessWidget {
 
         // RevenueSection overlapping into green background
         Positioned(
-          bottom: -100, // overlap effect
+          bottom: -100, 
           left: 0,
           right: 0,
           child: const RevenueSection(),

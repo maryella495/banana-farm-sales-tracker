@@ -31,13 +31,11 @@ class SearchBarSection extends StatelessWidget {
             prefixIcon: const Icon(Icons.search),
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(vertical: 14),
-            // 👇 Clear button appears only when text is entered
             suffixIcon: controller.text.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.clear),
                     onPressed: () {
                       controller.clear();
-                      // optional: close keyboard
                       FocusScope.of(context).unfocus();
                     },
                   )
