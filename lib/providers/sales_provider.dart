@@ -16,6 +16,21 @@ class SalesProvider extends ChangeNotifier {
     }).toList();
   }
 
+  List<Sale> get filteredSales {
+    if (_filterRange == null) return _sales;
+    return _sales
+        .where(
+          (sale) =>
+              sale.date.isAfter(
+                _filterRange!.start.subtract(const Duration(days: 1)),
+              ) &&
+              sale.date.isBefore(
+                _filterRange!.end.add(const Duration(days: 1)),
+              ),
+        )
+        .toList();
+  }
+
   void setFilterRange(DateTimeRange? range) {
     _filterRange = range;
     notifyListeners();
@@ -59,6 +74,21 @@ class SalesProvider extends ChangeNotifier {
 
   void deleteSale(int id) {
     _sales.removeWhere((sale) => sale.id == id);
+    notifyListeners();
+  }
+
+  void deleteFilteredSales(DateTimeRange? filterRange) {
+    if (filterRange == null) {
+      _sales.clear(); // delete all
+    } else {
+      _sales.removeWhere(
+        (sale) =>
+            sale.date.isAfter(
+              filterRange.start.subtract(const Duration(days: 1)),
+            ) &&
+            sale.date.isBefore(filterRange.end.add(const Duration(days: 1))),
+      );
+    }
     notifyListeners();
   }
 

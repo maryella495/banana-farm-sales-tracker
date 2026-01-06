@@ -87,7 +87,7 @@ class PerformanceOverviewSection extends StatelessWidget {
                 children: [
                   Text(
                     "₱${entry.value.toStringAsFixed(0)}",
-                    style: const TextStyle(fontSize: 11, color: Colors.white),
+                    style: const TextStyle(fontSize: 11),
                   ),
                   const SizedBox(height: 4),
                   Container(
@@ -172,11 +172,9 @@ class PerformanceOverviewSection extends StatelessWidget {
               icon: Icons.trending_up,
               iconColor: const Color(0xFF0A6305),
               label: "Highest Sale",
-              name: highestSale.buyer ?? "Unknown",
-              date: highestSale.date != null
-                  ? DateFormat("MMM d").format(highestSale.date!)
-                  : "-",
-              variation: highestSale.variety ?? "Unknown",
+              name: highestSale.buyer,
+              date: DateFormat("MMM d").format(highestSale.date),
+              variation: highestSale.variety,
               value:
                   "₱${(highestSale.price * highestSale.quantity).toStringAsFixed(0)}",
               valueColor: const Color(0xFF0A6305),
@@ -186,11 +184,9 @@ class PerformanceOverviewSection extends StatelessWidget {
               icon: Icons.trending_down,
               iconColor: const Color(0xFFE6A10C),
               label: "Lowest Sale",
-              name: lowestSale.buyer ?? "Unknown",
-              date: lowestSale.date != null
-                  ? DateFormat("MMM d").format(lowestSale.date!)
-                  : "-",
-              variation: lowestSale.variety ?? "Unknown",
+              name: lowestSale.buyer,
+              date: DateFormat("MMM d").format(lowestSale.date),
+              variation: lowestSale.variety,
               value:
                   "₱${(lowestSale.price * lowestSale.quantity).toStringAsFixed(0)}",
               valueColor: const Color(0xFFE6A10C),

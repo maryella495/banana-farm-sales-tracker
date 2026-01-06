@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/archive-widgets/active_filters_bar_section.dart';
 import 'package:myapp/archive-widgets/filter_dialog_section.dart';
-import 'package:myapp/services/export_service.dart';
+import 'package:myapp/shared/analytics_and_archive_appbar_actions.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/archive-widgets/sales_count_section.dart';
 import 'package:myapp/archive-widgets/sales_list_section.dart';
 import 'package:myapp/archive-widgets/searchbar_section.dart';
 import 'package:myapp/archive-widgets/variation_utils.dart';
-import 'package:myapp/pages/notification_page.dart';
 import 'package:myapp/pages/sales_details_page.dart';
 import 'package:myapp/pages/sections/appbar_section.dart';
 import 'package:myapp/providers/sales_provider.dart';
@@ -64,8 +63,8 @@ class _ArchivePageState extends State<ArchivePage> {
     // Layer local filters: search and variety
     final query = _searchController.text.trim().toLowerCase();
     final displayedSales = dateFiltered.where((sale) {
-      final buyer = sale.buyer?.toLowerCase() ?? "";
-      final variety = sale.variety?.toLowerCase() ?? "";
+      final buyer = sale.buyer.toLowerCase();
+      final variety = sale.variety.toLowerCase();
       final matchesSearch = query.isEmpty || buyer.contains(query);
       final matchesVariety =
           _selectedVariety == null ||
@@ -83,31 +82,7 @@ class _ArchivePageState extends State<ArchivePage> {
         ),
         title: "Sales Archive",
         subtitle: "Sales history records",
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xFF0A6305)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const NotificationPage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.download, color: Color(0xFF0A6305)),
-            tooltip: "Download report",
-            onPressed: () async {
-              final provider = context.read<SalesProvider>();
-              final file = await ExportService.exportSalesToCsv(provider.sales);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: const Color(0xFF0A6305),
-                  content: Text("Report exported: ${file.path}"),
-                ),
-              );
-            },
-          ),
-        ],
+        actions: buildAppBarActions(context, tooltip: "Download report"),
       ),
       body: Column(
         children: [
@@ -123,7 +98,9 @@ class _ArchivePageState extends State<ArchivePage> {
           SalesCountSection(
             count: displayedSales.length,
             onFilterTap: _showFilterDialog,
+            displayedSales: displayedSales,
           ),
+
           Expanded(
             child: SalesListSection(
               sales: displayedSales,
@@ -133,9 +110,20 @@ class _ArchivePageState extends State<ArchivePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => SaleDetailsPage(sale: sale),
+                    builder: (_) => SaleDetailsPage(saleId: sale.id),
                   ),
                 );
+              },
+              filtersActive:
+                  query.isNotEmpty ||
+                  _selectedVariety != null ||
+                  provider.filterRange != null,
+              onClearAllFilters: () {
+                context.read<SalesProvider>().clearFilter(); // date
+                setState(() {
+                  _selectedVariety = null; // variety
+                  _searchController.clear(); // search
+                });
               },
             ),
           ),

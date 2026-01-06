@@ -6,7 +6,7 @@ import 'package:myapp/providers/sales_provider.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => SalesProvider(),
+      create: (_) => SalesProvider(),
       child: const MyApp(),
     ),
   );

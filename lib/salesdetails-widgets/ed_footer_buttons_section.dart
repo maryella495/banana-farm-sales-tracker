@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/salesdetails-widgets/edit-sale-section/edit_sale_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/models/sale.dart';
 import 'package:myapp/providers/sales_provider.dart';
@@ -26,20 +27,7 @@ class EDFooterButtons extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {
-                // Placeholder: show a message until you implement editing
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Edit feature not available yet",
-                      style: TextStyle(
-                        color: Colors.white,
-                        backgroundColor: Color(0xFF0A6305),
-                      ),
-                    ),
-                  ),
-                );
-              },
+              onPressed: () => showEditSaleDialog(context, sale),
               icon: const Icon(Icons.edit, color: Colors.black),
               label: const Text(
                 "Edit Sale",
@@ -88,14 +76,12 @@ class EDFooterButtons extends StatelessWidget {
 
                 if (confirm == true) {
                   context.read<SalesProvider>().deleteSale(sale.id);
-
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Sale deleted successfully"),
                       duration: Duration(seconds: 2),
                     ),
                   );
-
                   Navigator.pop(context);
                 }
               },

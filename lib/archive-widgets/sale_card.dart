@@ -62,7 +62,7 @@ class SaleCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        sale.buyer ?? "Unknown Buyer",
+                        sale.buyer,
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Row(
@@ -74,9 +74,7 @@ class SaleCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            "${sale.date?.toLocal() ?? DateTime.now()}".split(
-                              ' ',
-                            )[0],
+                            "${sale.date.toLocal()}".split(' ')[0],
                             style: _greyTextStyle,
                           ),
                         ],
@@ -128,71 +126,70 @@ class SaleCard extends StatelessWidget {
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: getVariationColor(sale.variety ?? ""),
+                            color: getVariationColor(sale.variety),
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Text(sale.variety ?? "Unknown Variety"),
+                        Text(sale.variety),
                       ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.red,
-                        ),
-                        tooltip: "Delete sale", // accessibility
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Confirm Deletion"),
-                              content: const Text(
-                                "Are you sure you want to delete this sale? This action cannot be undone.",
+                  InkWell(
+                    onTap: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Confirm Deletion"),
+                          content: const Text(
+                            "Are you sure you want to delete this sale? This action cannot be undone.",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.black),
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text(
-                                    "Cancel",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFB60D15),
-                                  ),
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text(
-                                    "Delete",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
                             ),
-                          );
-
-                          if (confirm == true) {
-                            onDelete(sale);
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                backgroundColor: Color(0xFF0A6305),
-                                content: Text(
-                                  "Sale deleted successfully",
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFB60D15),
                               ),
-                            );
-                          }
-                        },
-                      ),
-                      const Text("Delete", style: TextStyle(color: Colors.red)),
-                    ],
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true) {
+                        onDelete(sale);
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Color(0xFF0A6305),
+                            content: Text(
+                              "Sale deleted successfully",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(Icons.delete_outline, color: Color(0xFFB60D15)),
+                        SizedBox(width: 4),
+                        Text(
+                          "Delete",
+                          style: TextStyle(color: Color(0xFFB60D15)),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

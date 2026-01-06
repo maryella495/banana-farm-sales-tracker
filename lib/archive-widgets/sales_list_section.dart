@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:myapp/models/sale.dart';
+import 'package:myapp/providers/sales_provider.dart';
 import 'sale_card.dart';
 
 class SalesListSection extends StatefulWidget {
@@ -7,6 +9,8 @@ class SalesListSection extends StatefulWidget {
   final void Function(Sale sale) onDelete;
   final Color Function(String) getVariationColor;
   final void Function(Sale sale)? onTap;
+  final bool filtersActive;
+  final void Function()? onClearAllFilters;
 
   const SalesListSection({
     super.key,
@@ -14,6 +18,8 @@ class SalesListSection extends StatefulWidget {
     required this.onDelete,
     required this.getVariationColor,
     this.onTap,
+    this.filtersActive = false,
+    this.onClearAllFilters,
   });
 
   @override
@@ -27,10 +33,47 @@ class _SalesListSectionState extends State<SalesListSection> {
   @override
   Widget build(BuildContext context) {
     if (widget.sales.isEmpty) {
-      return const Center(
-        child: Text(
-          "No sales found",
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+      final provider = context.watch<SalesProvider>();
+      final filtersActive =
+          provider.filterRange != null ||
+          (ModalRoute.of(context)?.settings.arguments as Map?)?['searchQuery']
+                  ?.isNotEmpty ==
+              true ||
+          (ModalRoute.of(context)?.settings.arguments
+                  as Map?)?['selectedVariety'] !=
+              null;
+
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.inbox, size: 48, color: Colors.grey),
+            const SizedBox(height: 8),
+            Text(
+              filtersActive ? "No sales match your filters" : "No sales yet",
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            if (widget.filtersActive && widget.onClearAllFilters != null)
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0A6305),
+                  side: const BorderSide(color: Color(0xFF0A6305)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: widget.onClearAllFilters,
+                child: const Text(
+                  "Clear filters",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+          ],
         ),
       );
     }

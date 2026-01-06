@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/salesdetails-widgets/edit-sale-section/edit_sale_helpers.dart';
 
 class DatePickerField extends StatelessWidget {
   final DateTime? selectedDate;
@@ -42,7 +43,7 @@ class DatePickerField extends StatelessWidget {
             ),
             validator: (value) => selectedDate == null ? "Required" : null,
             onTap: () async {
-              final picked = await showDatePicker(
+              final picked = await showGreenDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2000),

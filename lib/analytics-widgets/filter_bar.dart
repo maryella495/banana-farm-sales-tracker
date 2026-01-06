@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/shared/ui_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/providers/sales_provider.dart';
@@ -51,7 +52,7 @@ class FilterBar extends StatelessWidget {
               child: _FilterButton(
                 label: "Custom",
                 onTap: () async {
-                  final picked = await showDateRangePicker(
+                  final picked = await showGreenDateRangePicker(
                     context: context,
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),

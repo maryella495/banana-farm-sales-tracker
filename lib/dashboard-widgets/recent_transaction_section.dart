@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/pages/root_page.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/pages/sales_details_page.dart';
-import 'package:myapp/pages/archive_page.dart';
 import 'package:myapp/providers/sales_provider.dart';
 
 class RecentTransactionSection extends StatelessWidget {
@@ -61,7 +60,7 @@ class RecentTransactionSection extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => SaleDetailsPage(sale: sale),
+                        builder: (_) => SaleDetailsPage(saleId: sale.id),
                       ),
                     );
                   },

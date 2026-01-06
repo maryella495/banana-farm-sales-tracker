@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:myapp/archive-widgets/variation_utils.dart';
-import 'package:myapp/providers/sales_provider.dart';
+import 'package:myapp/shared/ui_helpers.dart';
 
 class FilterDialog extends StatelessWidget {
   final String? selectedVariety;
@@ -62,17 +61,12 @@ class FilterDialog extends StatelessWidget {
             leading: const Icon(Icons.date_range, color: Color(0xFF0A6305)),
             title: const Text("By Date Range"),
             onTap: () async {
-              final picked = await showDateRangePicker(
+              final picked = await showGreenDateRangePicker(
                 context: context,
                 firstDate: DateTime(2020),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
-                initialDateRange:
-                    context.read<SalesProvider>().filterRange ??
-                    DateTimeRange(
-                      start: DateTime.now().subtract(const Duration(days: 7)),
-                      end: DateTime.now(),
-                    ),
               );
+
               onDateRangeSelected(picked);
               Navigator.pop(context);
             },
