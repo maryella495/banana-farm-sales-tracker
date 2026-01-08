@@ -37,7 +37,7 @@ class VariationField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: _boxDecoration,
           child: DropdownButtonFormField<String>(
             initialValue: selectedVariation,

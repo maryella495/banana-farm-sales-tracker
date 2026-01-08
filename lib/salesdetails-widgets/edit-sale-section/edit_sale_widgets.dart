@@ -174,8 +174,10 @@ Widget _buildPriceQuantityRow(
         child: TextField(
           controller: quantityController,
           decoration: styledDecoration('Quantity (kg)'),
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+          ],
         ),
       ),
       const SizedBox(width: 12),

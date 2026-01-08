@@ -61,9 +61,9 @@ class AnalyticsHelper {
 
   /// Average price per kilo across all sales
   static double averagePrice(List<Sale> sales) {
-    final totalSales = sales.fold<double>(0, (sum, s) => sum + s.total);
-    final totalWeight = sales.fold<int>(0, (sum, s) => sum + s.quantity);
-    return totalWeight == 0 ? 0 : totalSales / totalWeight;
+    final totalSales = sales.fold<double>(0.0, (sum, s) => sum + s.total);
+    final totalWeight = sales.fold<double>(0.0, (sum, s) => sum + s.quantity);
+    return totalWeight == 0.0 ? 0.0 : totalSales / totalWeight;
   }
 
   /// Highest sale (by total value)

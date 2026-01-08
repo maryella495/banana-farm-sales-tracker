@@ -37,9 +37,17 @@ class SalesInfoSection extends StatelessWidget {
           _divider(),
           _detailRow(Icons.local_offer, "Variation", variation),
           _divider(),
-          _detailRow(Icons.balance, "Quantity Sold", "$quantity kg"),
+          _detailRow(
+            Icons.balance,
+            "Quantity Sold",
+            "${quantity.toStringAsFixed(2)} kg",
+          ),
           _divider(),
-          _detailRow(Icons.attach_money, "Price per kg", "₱$pricePerKg"),
+          _detailRow(
+            Icons.attach_money,
+            "Price per kg",
+            "₱${pricePerKg.toStringAsFixed(2)}",
+          ),
         ],
       ),
     );

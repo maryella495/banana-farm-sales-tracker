@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:myapp/providers/notification_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/addsale-widgets/add_sale_footer_buttons.dart';
 import 'package:myapp/addsale-widgets/buyer_name_field_section.dart';
@@ -19,7 +21,7 @@ class AddSalePage extends StatefulWidget {
 
 class _AddSalePageState extends State<AddSalePage> {
   final _formKey = GlobalKey<FormState>();
-
+  final _quantityController = TextEditingController();
   final _buyerController = TextEditingController();
   final _priceController = TextEditingController();
   final _notesController = TextEditingController();
@@ -32,9 +34,48 @@ class _AddSalePageState extends State<AddSalePage> {
   // Only banana variations
   final List<String> _variations = ["Lakatan", "Latundan", "Cardava", "Other"];
 
-  int _quantity = 1;
-
   void _saveSale() async {
+    if (_quantityController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter a quantity"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    final quantity = double.tryParse(_quantityController.text) ?? 0.0;
+    if (quantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Quantity must be greater than 0"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_selectedVariation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select a variety"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_selectedVariation == "Other" &&
+        (_customVariation?.trim().isEmpty ?? true)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter a custom variety"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       final price = double.tryParse(_priceController.text) ?? 0.0;
 
@@ -47,7 +88,7 @@ class _AddSalePageState extends State<AddSalePage> {
             : (_selectedVariation?.trim().isNotEmpty == true
                   ? _selectedVariation!.trim()
                   : "Unknown"),
-        quantity: _quantity > 0 ? _quantity : 1,
+        quantity: quantity,
         price: price,
         buyer: _buyerController.text.trim().isEmpty
             ? "Unknown Buyer"
@@ -57,6 +98,8 @@ class _AddSalePageState extends State<AddSalePage> {
             ? null
             : _notesController.text.trim(),
       );
+      final salesProvider = context.read<SalesProvider>();
+      final notifier = context.read<NotificationProvider>();
 
       debugPrint("Saving sale: ${sale.toMap()}");
 
@@ -111,6 +154,11 @@ class _AddSalePageState extends State<AddSalePage> {
       if (!mounted) return;
 
       if (newSale != null) {
+        notifier.addNotification(
+          "Sale added: ${newSale.buyer} | ${newSale.variety} | "
+          "${newSale.quantity}kg @ ₱${newSale.price} "
+          "(${DateFormat('MMM d, yyyy').format(newSale.date)})",
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -123,8 +171,8 @@ class _AddSalePageState extends State<AddSalePage> {
         _buyerController.clear();
         _priceController.clear();
         _notesController.clear();
+        _quantityController.clear();
         setState(() {
-          _quantity = 1;
           _selectedVariation = null;
           _customVariation = null;
           _selectedDate = DateTime.now();
@@ -148,6 +196,7 @@ class _AddSalePageState extends State<AddSalePage> {
     _buyerController.dispose();
     _priceController.dispose();
     _notesController.dispose();
+    _quantityController.dispose();
     super.dispose();
   }
 
@@ -193,13 +242,8 @@ class _AddSalePageState extends State<AddSalePage> {
               ),
               const SizedBox(height: 16),
 
-              QuantityField(
-                quantity: _quantity,
-                onIncrement: () => setState(() => _quantity++),
-                onDecrement: () => setState(() {
-                  if (_quantity > 0) _quantity--;
-                }),
-              ),
+              QuantityField(controller: _quantityController),
+
               const SizedBox(height: 16),
 
               PriceField(

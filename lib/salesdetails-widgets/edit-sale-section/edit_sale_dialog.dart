@@ -8,10 +8,17 @@ Future<void> showEditSaleDialog(BuildContext context, Sale sale) async {
   final parentContext = context;
 
   final buyerController = TextEditingController(text: sale.buyer);
-  final priceController = TextEditingController(text: sale.price.toString());
-  final quantityController = TextEditingController(
-    text: sale.quantity.toString(),
+  final priceController = TextEditingController(
+    text: sale.price % 1 == 0
+        ? sale.price.toStringAsFixed(0)
+        : sale.price.toStringAsFixed(2),
   );
+  final quantityController = TextEditingController(
+    text: sale.quantity % 1 == 0
+        ? sale.quantity.toStringAsFixed(0)
+        : sale.quantity.toStringAsFixed(2),
+  );
+
   final noteController = TextEditingController(text: sale.notes ?? "");
 
   final variations = ['Lakatan', 'Latundan', 'Cardava', 'Other'];

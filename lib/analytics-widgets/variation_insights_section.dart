@@ -42,12 +42,12 @@ class VariationInsightsSection extends StatelessWidget {
     String? highestAvgVariety;
     double highestAvgPrice = 0;
     grouped.forEach((variety, list) {
-      final totalQty = list.fold<int>(0, (sum, s) => sum + s.quantity);
+      final totalQty = list.fold<double>(0, (sum, s) => sum + s.quantity);
       final totalPrice = list.fold<double>(
         0,
         (sum, s) => sum + (s.price * s.quantity),
       );
-      final avg = totalQty == 0.0 ? 0.0 : totalPrice / totalQty;
+      final avg = totalQty == 0 ? 0.0 : totalPrice / totalQty;
       if (avg > highestAvgPrice) {
         highestAvgPrice = avg;
         highestAvgVariety = variety;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TotalEarnedSection extends StatelessWidget {
   final num amount;
@@ -6,6 +7,12 @@ class TotalEarnedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formatted = NumberFormat.currency(
+      locale: 'en_PH',
+      symbol: '₱',
+      decimalDigits: 2,
+    ).format(amount);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -24,12 +31,14 @@ class TotalEarnedSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            "₱${amount.toStringAsFixed(2)}",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+          FittedBox(
+            child: Text(
+              formatted,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

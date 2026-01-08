@@ -3,7 +3,7 @@ class Sale {
   final String buyer;
   final DateTime date; // sale date
   final String variety; // e.g. "Lakatan", "Latundan", "Cardava", "Other"
-  final int quantity; // in kg
+  final double quantity; // in kg
   final double price; // price per kg
   final String? notes; // optional notes
 
@@ -47,7 +47,7 @@ class Sale {
     String? buyer,
     String? variety,
     double? price,
-    int? quantity,
+    double? quantity,
     DateTime? date,
     String? notes,
   }) {
@@ -86,8 +86,10 @@ class Sale {
       id: map['id'] as int?,
       buyer: (map['buyer'] ?? "Unknown Buyer") as String,
       variety: (map['variety'] ?? "Unknown") as String,
-      quantity: (map['quantity'] ?? 0) as int,
-      price: (map['price'] ?? 0.0 as num).toDouble(),
+      quantity: (map['quantity'] is int)
+          ? (map['quantity'] as int).toDouble()
+          : (map['quantity'] as num?)?.toDouble() ?? 0.0,
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
       date: map['date'] != null
           ? DateTime.parse(map['date'] as String)
           : DateTime.now(),

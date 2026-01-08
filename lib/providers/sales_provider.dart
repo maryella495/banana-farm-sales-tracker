@@ -19,8 +19,10 @@ class SalesProvider extends ChangeNotifier {
   String? get selectedVariety => _selectedVariety;
 
   /// Initialize provider and load sales
-  SalesProvider() {
-    _initProvider();
+  SalesProvider();
+
+  Future<void> init() async {
+    await _initProvider();
   }
 
   Future<void> _initProvider() async {
@@ -70,17 +72,16 @@ class SalesProvider extends ChangeNotifier {
 
     // Date range filter
     if (_filterRange != null) {
-      result = result
-          .where(
-            (sale) =>
-                sale.date.isAfter(
-                  _filterRange!.start.subtract(const Duration(days: 1)),
-                ) &&
-                sale.date.isBefore(
-                  _filterRange!.end.add(const Duration(days: 1)),
-                ),
-          )
-          .toList();
+      result = result.where((sale) {
+        final saleDate = DateTime(
+          sale.date.year,
+          sale.date.month,
+          sale.date.day,
+        );
+
+        return !saleDate.isBefore(_filterRange!.start) &&
+            !saleDate.isAfter(_filterRange!.end);
+      }).toList();
     }
 
     return result;
@@ -88,6 +89,7 @@ class SalesProvider extends ChangeNotifier {
 
   bool get hasSales => _sales.isNotEmpty;
   bool get hasFilteredSales => filteredSales.isNotEmpty;
+
   bool isDuplicate(Sale sale) {
     return _sales.any(
       (s) =>
@@ -132,7 +134,11 @@ class SalesProvider extends ChangeNotifier {
   void filterThisMonth() {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final endOfMonth = DateTime(
+      now.year,
+      now.month + 1,
+      1,
+    ).subtract(const Duration(days: 1));
     setFilterRange(DateTimeRange(start: startOfMonth, end: endOfMonth));
   }
 
@@ -140,12 +146,13 @@ class SalesProvider extends ChangeNotifier {
 
   /// Add a new sale and return the persisted Sale with its assigned ID
   Future<Sale?> addSale(Sale sale) async {
-    await _db.init(); // ✅ ensure DB ready before insert
+    await _db.init();
     final id = await _db.insertSale(sale);
     if (id > 0) {
       final newSale = sale.copyWith(id: id);
       _sales.add(newSale);
       notifyListeners();
+
       return newSale;
     }
     return null; // insert failed
@@ -192,6 +199,71 @@ class SalesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Export method
+  Future<String> exportSalesAsCsv() async {
+    final buffer = StringBuffer();
+    buffer.writeln("Date,Buyer,Variety,Quantity,Price,Notes");
+    for (final sale in _sales) {
+      buffer.writeln(
+        "${sale.date.toIso8601String()},"
+        "${sale.buyer},"
+        "${sale.variety},"
+        "${sale.quantity},"
+        "${sale.price},"
+        "${sale.notes ?? ''}",
+      );
+    }
+    return buffer.toString();
+  }
+
+  Future<void> importSalesFromCsv(String csvData) async {
+    final lines = csvData.split('\n');
+
+    // Skip header row (first line)
+    for (var i = 1; i < lines.length; i++) {
+      final line = lines[i].trim();
+      if (line.isEmpty) continue;
+
+      final parts = line.split(',');
+      if (parts.length < 5) continue;
+
+      try {
+        final sale = Sale(
+          date: DateTime.parse(parts[0]),
+          buyer: parts[1],
+          variety: parts[2],
+          quantity: double.tryParse(parts[3]) ?? 0,
+          price: double.tryParse(parts[4]) ?? 0,
+          notes: parts.length > 5 ? parts[5] : null,
+        );
+
+        // Prevent duplicates (same date, buyer, variety)
+        final exists = _sales.any(
+          (s) =>
+              s.buyer == sale.buyer &&
+              s.variety == sale.variety &&
+              s.date.year == sale.date.year &&
+              s.date.month == sale.date.month &&
+              s.date.day == sale.date.day &&
+              s.quantity == sale.quantity &&
+              s.price == sale.price,
+        );
+
+        if (!exists) {
+          final id = await _db.insertSale(sale);
+          if (id > 0) {
+            _sales.add(sale.copyWith(id: id));
+          }
+        }
+      } catch (e) {
+        // Skip invalid rows
+        continue;
+      }
+    }
+
+    notifyListeners();
+  }
+
   /// Analytics
   double get totalRevenue => AnalyticsHelper.totalRevenue(_sales);
   double get weekRevenue => AnalyticsHelper.weekRevenue(_sales);
@@ -214,7 +286,11 @@ class SalesProvider extends ChangeNotifier {
     if (start == startOfWeek && end == endOfWeek) return "This week";
 
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    final endOfMonth = DateTime(
+      now.year,
+      now.month + 1,
+      1,
+    ).subtract(const Duration(days: 1));
     if (start == startOfMonth && end == endOfMonth) return "This month";
 
     return "${DateFormat('MMM d').format(start)} - ${DateFormat('MMM d').format(end)}";

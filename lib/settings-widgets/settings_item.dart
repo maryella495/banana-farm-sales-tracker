@@ -18,14 +18,29 @@ class SettingsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: const Color(0xFFE0E0E0),
-        child: Icon(icon, color: const Color.fromARGB(255, 90, 90, 90)),
+        radius: 22,
+        backgroundColor: const Color(0xFFE8F5E9), // light green background
+        child: Icon(
+          icon,
+          color: const Color(0xFF0A6305), // brand green accent
+        ),
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          color: Colors.black87,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: Colors.black54, fontSize: 14),
+      ),
+      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     );
   }
 }

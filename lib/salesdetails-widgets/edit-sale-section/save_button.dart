@@ -52,8 +52,9 @@ class SaveButton extends StatelessWidget {
           return;
         }
 
-        final parsedPrice = double.tryParse(priceController.text);
-        final parsedQty = int.tryParse(quantityController.text);
+        final parsedPrice = double.tryParse(priceController.text.trim()) ?? 0.0;
+        final parsedQty =
+            double.tryParse(quantityController.text.trim()) ?? 0.0;
 
         final finalVariety = selectedVariation == 'Other'
             ? (otherVariationController.text.trim().isEmpty
@@ -63,7 +64,7 @@ class SaveButton extends StatelessWidget {
 
         final updatedSale = sale.copyWith(
           buyer: buyerController.text.trim().isEmpty
-              ? null
+              ? "Unknown Buyer"
               : buyerController.text.trim(),
           variety: finalVariety,
           price: parsedPrice,

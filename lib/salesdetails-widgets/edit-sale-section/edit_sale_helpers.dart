@@ -39,11 +39,16 @@ String buildChangeSummary(Sale oldSale, Sale newSale) {
     changes.add("Variety: ${oldSale.variety} → ${newSale.variety}");
   }
   if (oldSale.price != newSale.price) {
-    changes.add("Price: ${oldSale.price} → ${newSale.price}");
+    changes.add(
+      "Price: ${oldSale.price.toStringAsFixed(2)} → ${newSale.price.toStringAsFixed(2)}",
+    );
   }
   if (oldSale.quantity != newSale.quantity) {
-    changes.add("Quantity: ${oldSale.quantity} → ${newSale.quantity}");
+    changes.add(
+      "Quantity: ${oldSale.quantity.toStringAsFixed(2)} → ${newSale.quantity.toStringAsFixed(2)}",
+    );
   }
+
   if (oldSale.date != newSale.date) {
     changes.add(
       "Date: ${oldSale.date.toLocal().toString().split(' ')[0]} → "
@@ -73,9 +78,9 @@ String? validateSaleInputs(
     return "Price must be a positive number";
   }
 
-  final parsedQty = int.tryParse(quantity);
+  final parsedQty = double.tryParse(quantity);
   if (parsedQty == null || parsedQty <= 0) {
-    return "Quantity must be greater than 0";
+    return "Enter a valid quantity (e.g., 2.5)";
   }
 
   if (selectedVariation == 'Other' && otherVariation.isEmpty) {

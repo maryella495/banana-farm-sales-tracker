@@ -36,19 +36,29 @@ class DatabaseService {
 
       _db = await openDatabase(
         path,
-        version: 1,
+        version: 2,
         onCreate: (db, version) async {
           await db.execute('''
             CREATE TABLE sales (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               buyer TEXT,
               variety TEXT,
-              quantity INTEGER,
+              quantity REAL,
               price REAL,
               date TEXT,
               notes TEXT
             )
           ''');
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) {
+            await db.execute(
+              'ALTER TABLE sales ADD COLUMN synced INTEGER DEFAULT 0',
+            );
+          }
+          if (oldVersion < 3) {
+            await db.execute('ALTER TABLE sales ADD COLUMN status TEXT');
+          }
         },
       );
       _logger.i("Database initialized at $path");

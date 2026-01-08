@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/pages/help_page.dart';
 import 'package:myapp/pages/notification_page.dart';
+import 'package:myapp/pages/privacy_page.dart';
+import 'package:myapp/settings-widgets/settings_item.dart';
 import 'package:myapp/shared/appbar_section.dart';
 import 'package:myapp/settings-widgets/settings_group.dart';
 
@@ -30,14 +33,45 @@ class SettingsPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.help_outline, color: Color(0xFF0A6305)),
             onPressed: () {
-              // show help/about dialog
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HelpPage()),
+              );
             },
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [const SettingsGroup(), const SizedBox(height: 24)],
+        children: [
+          SettingsGroup(
+            items: [
+              SettingsItem(
+                icon: Icons.lock,
+                title: "Privacy",
+                subtitle: "Security settings",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const PrivacyPage()),
+                  );
+                },
+              ),
+              SettingsItem(
+                icon: Icons.help_outline,
+                title: "Help & Support",
+                subtitle: "Get assistance",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HelpPage()),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'settings_item.dart';
 
 class SettingsGroup extends StatelessWidget {
-  const SettingsGroup({super.key});
+  final List<SettingsItem> items;
+
+  const SettingsGroup({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -14,33 +16,10 @@ class SettingsGroup extends StatelessWidget {
       ),
       child: Column(
         children: [
-          SettingsItem(
-            icon: Icons.person,
-            title: "Account",
-            subtitle: "Manage your profile",
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          SettingsItem(
-            icon: Icons.notifications,
-            title: "Notifications",
-            subtitle: "Configure alerts",
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          SettingsItem(
-            icon: Icons.lock,
-            title: "Privacy",
-            subtitle: "Security settings",
-            onTap: () {},
-          ),
-          const Divider(height: 1),
-          SettingsItem(
-            icon: Icons.help_outline,
-            title: "Help & Support",
-            subtitle: "Get assistance",
-            onTap: () {},
-          ),
+          for (int i = 0; i < items.length; i++) ...[
+            items[i],
+            if (i < items.length - 1) const Divider(height: 1),
+          ],
         ],
       ),
     );
