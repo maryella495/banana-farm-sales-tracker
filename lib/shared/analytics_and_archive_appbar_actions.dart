@@ -7,6 +7,7 @@ import 'package:myapp/pages/notification_page.dart';
 List<Widget> buildAppBarActions(
   BuildContext context, {
   String tooltip = "Download",
+  bool isDisabled = false,
 }) {
   return [
     IconButton(
@@ -19,9 +20,14 @@ List<Widget> buildAppBarActions(
       },
     ),
     IconButton(
-      icon: const Icon(Icons.download, color: Color(0xFF0A6305)),
+      icon: Icon(
+        Icons.download,
+        color: isDisabled ? Colors.grey : const Color(0xFF0A6305),
+      ),
       tooltip: tooltip,
-      onPressed: () => downloadReport(context, context.read<SalesProvider>()),
+      onPressed: isDisabled
+          ? null
+          : () => downloadReport(context, context.read<SalesProvider>()),
     ),
   ];
 }

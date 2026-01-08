@@ -1,12 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/models/sale.dart';
+import 'package:myapp/utils/analytics_helper.dart';
+import 'package:myapp/services/database_service.dart';
 
+/// SalesProvider
+/// --------------
+/// Manages sales state with filtering, analytics, and persistence.
+/// Integrates with DatabaseService for SQLite storage.
+/// Provides CRUD operations, filter utilities, and revenue analytics.
 class SalesProvider extends ChangeNotifier {
-  final List<Sale> _sales = [];
+  final DatabaseService _db = DatabaseService();
+  List<Sale> _sales = [];
   DateTimeRange? _filterRange;
-  DateTimeRange? get filterRange => _filterRange;
+  String? _selectedVariety;
 
+  DateTimeRange? get filterRange => _filterRange;
+  String? get selectedVariety => _selectedVariety;
+
+  /// Initialize provider and load sales
+  SalesProvider() {
+    _initProvider();
+  }
+
+  Future<void> _initProvider() async {
+    await _db.init();
+    _sales = await _db.getSales();
+    notifyListeners();
+  }
+
+  /// Load all sales from database (manual refresh)
+  Future<void> loadSales() async {
+    await _db.init();
+    _sales = await _db.getSales();
+    notifyListeners();
+  }
+
+  /// Sales list with optional filter applied
   List<Sale> get sales {
     if (_filterRange == null) return List.unmodifiable(_sales);
     return _sales.where((s) {
@@ -16,21 +46,62 @@ class SalesProvider extends ChangeNotifier {
     }).toList();
   }
 
+  /// Filtered sales convenience getter
   List<Sale> get filteredSales {
-    if (_filterRange == null) return _sales;
-    return _sales
-        .where(
-          (sale) =>
-              sale.date.isAfter(
-                _filterRange!.start.subtract(const Duration(days: 1)),
-              ) &&
-              sale.date.isBefore(
-                _filterRange!.end.add(const Duration(days: 1)),
-              ),
-        )
-        .toList();
+    var result = _sales;
+
+    // Variety filter
+    if (selectedVariety != null) {
+      if (selectedVariety == "Other") {
+        result = result
+            .where(
+              (sale) =>
+                  sale.variety != "Lakatan" &&
+                  sale.variety != "Latundan" &&
+                  sale.variety != "Cardava",
+            )
+            .toList();
+      } else {
+        result = result
+            .where((sale) => sale.variety == selectedVariety)
+            .toList();
+      }
+    }
+
+    // Date range filter
+    if (_filterRange != null) {
+      result = result
+          .where(
+            (sale) =>
+                sale.date.isAfter(
+                  _filterRange!.start.subtract(const Duration(days: 1)),
+                ) &&
+                sale.date.isBefore(
+                  _filterRange!.end.add(const Duration(days: 1)),
+                ),
+          )
+          .toList();
+    }
+
+    return result;
   }
 
+  bool get hasSales => _sales.isNotEmpty;
+  bool get hasFilteredSales => filteredSales.isNotEmpty;
+  bool isDuplicate(Sale sale) {
+    return _sales.any(
+      (s) =>
+          s.variety == sale.variety &&
+          s.buyer == sale.buyer &&
+          s.date.year == sale.date.year &&
+          s.date.month == sale.date.month &&
+          s.date.day == sale.date.day &&
+          s.quantity == sale.quantity &&
+          s.price == sale.price,
+    );
+  }
+
+  /// Filter controls
   void setFilterRange(DateTimeRange? range) {
     _filterRange = range;
     notifyListeners();
@@ -38,6 +109,12 @@ class SalesProvider extends ChangeNotifier {
 
   void clearFilter() {
     _filterRange = null;
+    _selectedVariety = null;
+    notifyListeners();
+  }
+
+  void setVarietyFilter(String? variety) {
+    _selectedVariety = variety;
     notifyListeners();
   }
 
@@ -59,71 +136,68 @@ class SalesProvider extends ChangeNotifier {
     setFilterRange(DateTimeRange(start: startOfMonth, end: endOfMonth));
   }
 
-  void addSale(Sale sale) {
-    _sales.add(sale);
-    notifyListeners();
+  /// CRUD operations with persistence
+
+  /// Add a new sale and return the persisted Sale with its assigned ID
+  Future<Sale?> addSale(Sale sale) async {
+    await _db.init(); // ✅ ensure DB ready before insert
+    final id = await _db.insertSale(sale);
+    if (id > 0) {
+      final newSale = sale.copyWith(id: id);
+      _sales.add(newSale);
+      notifyListeners();
+      return newSale;
+    }
+    return null; // insert failed
   }
 
-  void updateSale(Sale sale) {
-    final idx = _sales.indexWhere((s) => s.id == sale.id);
-    if (idx != -1) {
-      _sales[idx] = sale;
+  /// Update an existing sale
+  Future<void> updateSale(Sale sale) async {
+    if (sale.id == null) return; // can't update without an ID
+    await _db.init();
+    final rows = await _db.updateSale(sale);
+    if (rows > 0) {
+      final idx = _sales.indexWhere((s) => s.id == sale.id);
+      if (idx != -1) {
+        _sales[idx] = sale;
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Delete a sale by id
+  Future<void> deleteSale(int id) async {
+    await _db.init();
+    final rows = await _db.deleteSale(id);
+    if (rows > 0) {
+      _sales.removeWhere((sale) => sale.id == id);
       notifyListeners();
     }
   }
 
-  void deleteSale(int id) {
-    _sales.removeWhere((sale) => sale.id == id);
-    notifyListeners();
-  }
-
-  void deleteFilteredSales(DateTimeRange? filterRange) {
+  Future<void> deleteFilteredSales(DateTimeRange? filterRange) async {
+    await _db.init();
     if (filterRange == null) {
-      _sales.clear(); // delete all
+      await _db.clearSales(); // delete all
+      _sales.clear();
     } else {
-      _sales.removeWhere(
-        (sale) =>
-            sale.date.isAfter(
-              filterRange.start.subtract(const Duration(days: 1)),
-            ) &&
-            sale.date.isBefore(filterRange.end.add(const Duration(days: 1))),
-      );
+      // Delete only filtered sales
+      for (final sale in filteredSales) {
+        if (sale.id != null) {
+          await _db.deleteSale(sale.id!);
+        }
+      }
+      _sales = await _db.getSales();
     }
     notifyListeners();
   }
 
-  double get totalRevenue => _sales.fold(0.0, (sum, sale) => sum + sale.total);
+  /// Analytics
+  double get totalRevenue => AnalyticsHelper.totalRevenue(_sales);
+  double get weekRevenue => AnalyticsHelper.weekRevenue(_sales);
+  double get monthRevenue => AnalyticsHelper.monthRevenue(_sales);
 
-  double get weekRevenue {
-    final now = DateTime.now();
-    final startOfWeek = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).subtract(Duration(days: now.weekday - 1)); // Monday midnight
-    final endOfWeek = startOfWeek.add(const Duration(days: 6));
-
-    return _sales
-        .where((sale) {
-          final d = DateTime(sale.date.year, sale.date.month, sale.date.day);
-          return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
-        })
-        .fold(0.0, (sum, sale) => sum + sale.total);
-  }
-
-  double get monthRevenue {
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    return _sales
-        .where((sale) {
-          final d = DateTime(sale.date.year, sale.date.month, sale.date.day);
-          return !d.isBefore(startOfMonth) && !d.isAfter(endOfMonth);
-        })
-        .fold(0.0, (sum, sale) => sum + sale.total);
-  }
-
+  /// Filter label for UI
   String get filterLabel {
     if (_filterRange == null) return "Overall";
 

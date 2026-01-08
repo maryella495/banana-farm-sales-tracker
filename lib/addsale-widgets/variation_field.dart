@@ -40,17 +40,31 @@ class VariationField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: _boxDecoration,
           child: DropdownButtonFormField<String>(
-            value: selectedVariation,
-            hint: const Text(
+            initialValue: selectedVariation,
+            hint: Text(
               "Select banana variation",
-              style: TextStyle(fontSize: 16, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black.withValues(alpha: 0.8),
+              ),
             ),
             decoration: const InputDecoration(border: InputBorder.none),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black.withValues(alpha: 0.8),
+              fontWeight: FontWeight.normal,
+            ),
+            iconEnabledColor: const Color(0xFF0A6305),
             items: variations
                 .map((v) => DropdownMenuItem(value: v, child: Text(v)))
                 .toList(),
             onChanged: onChanged,
-            validator: (value) => value == null ? "Required" : null,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Please select a variety";
+              }
+              return null;
+            },
           ),
         ),
         if (selectedVariation == "Other") ...[
@@ -59,10 +73,14 @@ class VariationField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: _boxDecoration,
             child: TextFormField(
-              decoration: _inputDecoration("Enter new variation"),
+              decoration: _inputDecoration("Enter banana variety"),
               onChanged: onCustomChanged,
-              validator: (value) =>
-                  value == null || value.isEmpty ? "Required" : null,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Please enter a variety name";
+                }
+                return null;
+              },
             ),
           ),
         ],

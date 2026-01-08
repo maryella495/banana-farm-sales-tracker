@@ -6,12 +6,13 @@ Future<void> downloadReport(
   BuildContext context,
   SalesProvider provider,
 ) async {
+  final messenger = ScaffoldMessenger.of(context);
   final hasFilters = provider.filterRange != null;
   final salesToExport = hasFilters ? provider.filteredSales : provider.sales;
 
   final file = await ExportService.exportSalesToCsv(salesToExport);
 
-  ScaffoldMessenger.of(context).showSnackBar(
+  messenger.showSnackBar(
     SnackBar(
       backgroundColor: const Color(0xFF0A6305),
       content: Text(
@@ -19,7 +20,7 @@ Future<void> downloadReport(
             ? "Filtered report exported: ${file.path.split('/').last}"
             : "Full report exported: ${file.path.split('/').last}",
       ),
-      duration: const Duration(seconds: 4),
+      duration: const Duration(seconds: 3),
     ),
   );
 }
@@ -82,6 +83,6 @@ Future<void> confirmDeleteAllDialog(
       ],
     ),
   );
-
+  if (!context.mounted) return;
   if (confirm == true) onConfirm();
 }

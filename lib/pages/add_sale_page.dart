@@ -34,40 +34,112 @@ class _AddSalePageState extends State<AddSalePage> {
 
   int _quantity = 1;
 
-  void _saveSale() {
+  void _saveSale() async {
     if (_formKey.currentState!.validate()) {
+      final price = double.tryParse(_priceController.text) ?? 0.0;
+
       final sale = Sale(
-        id: DateTime.now().millisecondsSinceEpoch,
-        variety: _selectedVariation ?? _customVariation ?? "Unknown",
-        quantity: _quantity,
-        price: double.parse(_priceController.text),
-        buyer: _buyerController.text,
+        id: null,
+        variety: _selectedVariation == "Other"
+            ? (_customVariation?.trim().isNotEmpty == true
+                  ? _customVariation!.trim()
+                  : "Unknown")
+            : (_selectedVariation?.trim().isNotEmpty == true
+                  ? _selectedVariation!.trim()
+                  : "Unknown"),
+        quantity: _quantity > 0 ? _quantity : 1,
+        price: price,
+        buyer: _buyerController.text.trim().isEmpty
+            ? "Unknown Buyer"
+            : _buyerController.text.trim(),
         date: _selectedDate,
-        notes: _notesController.text.isEmpty ? null : _notesController.text,
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
       );
 
-      context.read<SalesProvider>().addSale(sale);
+      debugPrint("Saving sale: ${sale.toMap()}");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Sale added successfully",
-            style: TextStyle(color: Colors.white),
+      final provider = context.read<SalesProvider>();
+
+      // Duplicate check before saving
+      if (provider.isDuplicate(sale)) {
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: Colors.white,
+            title: const Text(
+              "Possible Duplicate",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: const Text(
+              "A sale with the same details already exists. Do you still want to save it?",
+              style: TextStyle(fontSize: 15),
+            ),
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey.shade700,
+                ),
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0A6305),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Save Anyway"),
+              ),
+            ],
           ),
-          backgroundColor: Color(0xFF0A6305),
-        ),
-      );
+        );
 
-      // Reset form fields
-      _buyerController.clear();
-      _priceController.clear();
-      _notesController.clear();
-      setState(() {
-        _quantity = 1;
-        _selectedVariation = null;
-        _customVariation = null;
-        _selectedDate = DateTime.now();
-      });
+        if (confirm != true) return; // user cancelled
+      }
+
+      // Proceed with saving
+      final newSale = await provider.addSale(sale);
+
+      if (!mounted) return;
+
+      if (newSale != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Sale added successfully",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Color(0xFF0A6305),
+          ),
+        );
+        _buyerController.clear();
+        _priceController.clear();
+        _notesController.clear();
+        setState(() {
+          _quantity = 1;
+          _selectedVariation = null;
+          _customVariation = null;
+          _selectedDate = DateTime.now();
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Failed to add sale",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -82,7 +154,9 @@ class _AddSalePageState extends State<AddSalePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
+        backgroundColor: const Color(0xFFE8F5E9),
         title: const Text(
           "Add New Sale",
           style: TextStyle(fontWeight: FontWeight.bold),

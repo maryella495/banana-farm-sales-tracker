@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/pages/root_page.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/pages/sales_details_page.dart';
 import 'package:myapp/providers/sales_provider.dart';
+
+/// RecentTransactionSection
+/// ------------------------
+/// Displays a list of the most recent sales transactions in the DashboardPage.
+///
+/// Purpose:
+/// - Gives farmers a quick glance at their latest activity.
+/// - Uses SalesProvider.sales to fetch data.
+/// - limited to last 5 transactions for readability.
 
 class RecentTransactionSection extends StatelessWidget {
   const RecentTransactionSection({super.key});
@@ -11,8 +21,11 @@ class RecentTransactionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final sales = context.watch<SalesProvider>().sales;
 
-    // Show last 5 transactions, newest first
-    final recent = sales.reversed.take(5).toList();
+    final recent = [...sales]..sort((a, b) => b.date.compareTo(a.date));
+    final lastFive = recent.take(5).toList();
+
+    final currency = NumberFormat.currency(symbol: "₱");
+    final dateFormat = DateFormat('MMM d, yyyy');
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -49,21 +62,38 @@ class RecentTransactionSection extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Transaction list
-          if (recent.isEmpty)
-            const Text("No transactions yet")
+          if (lastFive.isEmpty)
+            const Text(
+              "No transactions yet",
+              style: TextStyle(
+                color: Colors.black54,
+                fontStyle: FontStyle.italic,
+              ),
+            )
           else
-            ...recent.map(
+            ...lastFive.map(
               (sale) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SaleDetailsPage(saleId: sale.id),
-                      ),
-                    );
+                    if (sale.id != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SaleDetailsPage(saleId: sale.id!),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Sale not yet saved, cannot view details",
+                          ),
+                        ),
+                      );
+                    }
                   },
+
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -71,7 +101,7 @@ class RecentTransactionSection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           offset: const Offset(0, 2),
                           blurRadius: 4,
                         ),
@@ -101,18 +131,13 @@ class RecentTransactionSection extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                "${sale.date.toLocal()}".split(' ')[0],
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black.withOpacity(0.6),
-                                ),
-                              ),
+                              Text(dateFormat.format(sale.date)),
                             ],
                           ),
                         ),
+
                         Text(
-                          "₱${sale.price * sale.quantity}",
+                          currency.format(sale.price * sale.quantity),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,

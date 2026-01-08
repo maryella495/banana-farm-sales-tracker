@@ -25,4 +25,56 @@ class AnalyticsHelper {
     }
     return data;
   }
+
+  static double totalRevenue(List<Sale> sales) =>
+      sales.fold(0.0, (sum, sale) => sum + sale.total);
+
+  static double weekRevenue(List<Sale> sales) {
+    final now = DateTime.now();
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+
+    return sales
+        .where((sale) {
+          final d = DateTime(sale.date.year, sale.date.month, sale.date.day);
+          return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
+        })
+        .fold(0.0, (sum, sale) => sum + sale.total);
+  }
+
+  static double monthRevenue(List<Sale> sales) {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    return sales
+        .where((sale) {
+          final d = DateTime(sale.date.year, sale.date.month, sale.date.day);
+          return !d.isBefore(startOfMonth) && !d.isAfter(endOfMonth);
+        })
+        .fold(0.0, (sum, sale) => sum + sale.total);
+  }
+
+  /// Average price per kilo across all sales
+  static double averagePrice(List<Sale> sales) {
+    final totalSales = sales.fold<double>(0, (sum, s) => sum + s.total);
+    final totalWeight = sales.fold<int>(0, (sum, s) => sum + s.quantity);
+    return totalWeight == 0 ? 0 : totalSales / totalWeight;
+  }
+
+  /// Highest sale (by total value)
+  static Sale? highestSale(List<Sale> sales) {
+    if (sales.isEmpty) return null;
+    return sales.reduce((a, b) => a.total > b.total ? a : b);
+  }
+
+  /// Lowest sale (by total value)
+  static Sale? lowestSale(List<Sale> sales) {
+    if (sales.isEmpty) return null;
+    return sales.reduce((a, b) => a.total < b.total ? a : b);
+  }
 }

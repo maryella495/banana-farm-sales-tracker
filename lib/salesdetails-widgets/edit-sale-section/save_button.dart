@@ -87,12 +87,18 @@ class SaveButton extends StatelessWidget {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Confirm Changes'),
+            title: const Text(
+              'Confirm Changes',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             content: Text(changes),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Color(0xFF0A6305)),
+                ),
               ),
               ElevatedButton(
                 style: greenButtonStyle,

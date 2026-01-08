@@ -30,8 +30,7 @@ class NotesField extends StatelessWidget {
           child: TextFormField(
             controller: controller,
             maxLines: 3,
-            decoration: _inputDecoration("Add any additional notes..."),
-            validator: (value) => null, // optional, no validation
+            decoration: _inputDecoration("Optional remarks about this sale..."),
           ),
         ),
       ],

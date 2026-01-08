@@ -30,8 +30,12 @@ class BuyerNameField extends StatelessWidget {
           child: TextFormField(
             controller: controller,
             decoration: _inputDecoration("Enter buyer's name"),
-            validator: (value) =>
-                value == null || value.isEmpty ? "Required" : null,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Please enter buyer name";
+              }
+              return null;
+            },
           ),
         ),
       ],

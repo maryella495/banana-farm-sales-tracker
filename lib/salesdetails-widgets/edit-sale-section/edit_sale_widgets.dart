@@ -5,7 +5,7 @@ import 'package:myapp/salesdetails-widgets/edit-sale-section/edit_sale_helpers.d
 
 class BuyerSection extends StatelessWidget {
   final TextEditingController controller;
-  const BuyerSection({required this.controller});
+  const BuyerSection({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +39,7 @@ class SaleDetailsSection extends StatelessWidget {
   final TextEditingController quantityController;
 
   const SaleDetailsSection({
+    super.key,
     required this.selectedDate,
     required this.onDateChanged,
     required this.selectedVariation,
@@ -71,7 +72,7 @@ class SaleDetailsSection extends StatelessWidget {
 
 class NotesSection extends StatelessWidget {
   final TextEditingController controller;
-  const NotesSection({required this.controller});
+  const NotesSection({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +132,21 @@ Widget _buildVarietyDropdown(
   return Column(
     children: [
       DropdownButtonFormField<String>(
-        value: selectedVariation,
+        initialValue: selectedVariation,
         items: variations
-            .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+            .map(
+              (v) => DropdownMenuItem(
+                value: v,
+                child: Text(
+                  v,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            )
             .toList(),
         onChanged: (value) {
           if (value != null) onChanged(value);

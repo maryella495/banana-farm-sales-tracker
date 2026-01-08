@@ -71,7 +71,7 @@ class FilterBar extends StatelessWidget {
         Chip(
           avatar: Icon(
             Icons.filter_alt,
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             size: 18,
           ),
           label: Text(
@@ -79,18 +79,18 @@ class FilterBar extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
             ),
           ),
           backgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
-            side: BorderSide(color: Colors.black.withOpacity(0.3)),
+            side: BorderSide(color: Colors.black.withValues(alpha: 0.3)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           deleteIcon: Icon(
             Icons.close,
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             size: 18,
           ),
           onDeleted: () => provider.clearFilter(),
@@ -110,33 +110,33 @@ class _FilterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-          if (states.contains(MaterialState.hovered)) {
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.hovered)) {
             return Color(0xFFE8F5E9);
           }
-          if (states.contains(MaterialState.pressed)) {
-            return Colors.black.withOpacity(0.1);
+          if (states.contains(WidgetState.pressed)) {
+            return Colors.black.withValues(alpha: 0.1);
           }
           return Colors.transparent;
         }),
-        elevation: MaterialStateProperty.resolveWith<double>((states) {
-          if (states.contains(MaterialState.hovered)) return 4;
-          if (states.contains(MaterialState.pressed)) return 2;
+        elevation: WidgetStateProperty.resolveWith<double>((states) {
+          if (states.contains(WidgetState.hovered)) return 4;
+          if (states.contains(WidgetState.pressed)) return 2;
           return 0; // flat by default
         }),
-        shadowColor: MaterialStateProperty.resolveWith<Color>((states) {
-          if (states.contains(MaterialState.hovered)) {
-            return Colors.black.withOpacity(0.3);
+        shadowColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.hovered)) {
+            return Colors.black.withValues(alpha: 0.3);
           }
           return Colors.transparent;
         }),
-        padding: MaterialStateProperty.all(
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
         ),
-        shape: MaterialStateProperty.all(
+        shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
-            side: BorderSide(color: Colors.black.withOpacity(0.3)),
+            side: BorderSide(color: Colors.black.withValues(alpha: 0.3)),
           ),
         ),
       ),
@@ -144,10 +144,11 @@ class _FilterButton extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withValues(alpha: 0.7),
         ),
+        textAlign: TextAlign.center,
       ),
     );
   }

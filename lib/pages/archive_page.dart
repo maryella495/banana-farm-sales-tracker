@@ -8,7 +8,7 @@ import 'package:myapp/archive-widgets/sales_list_section.dart';
 import 'package:myapp/archive-widgets/searchbar_section.dart';
 import 'package:myapp/archive-widgets/variation_utils.dart';
 import 'package:myapp/pages/sales_details_page.dart';
-import 'package:myapp/pages/sections/appbar_section.dart';
+import 'package:myapp/shared/appbar_section.dart';
 import 'package:myapp/providers/sales_provider.dart';
 import 'package:myapp/models/sale.dart';
 
@@ -21,7 +21,6 @@ class ArchivePage extends StatefulWidget {
 
 class _ArchivePageState extends State<ArchivePage> {
   final TextEditingController _searchController = TextEditingController();
-  String? _selectedVariety;
 
   @override
   void initState() {
@@ -30,15 +29,24 @@ class _ArchivePageState extends State<ArchivePage> {
   }
 
   void _deleteSale(Sale sale) {
-    context.read<SalesProvider>().deleteSale(sale.id);
+    if (sale.id != null) {
+      context.read<SalesProvider>().deleteSale(sale.id!);
+    } else {
+      // Optionally show a snackbar or ignore unsaved sale
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Sale not yet saved, cannot delete")),
+      );
+    }
   }
 
   void _showFilterDialog() {
     showDialog(
       context: context,
       builder: (_) => FilterDialog(
-        selectedVariety: _selectedVariety,
-        onVarietySelected: (v) => setState(() => _selectedVariety = v),
+        selectedVariety: context.read<SalesProvider>().selectedVariety,
+        onVarietySelected: (v) {
+          context.read<SalesProvider>().setVarietyFilter(v);
+        },
         onDateRangeSelected: (range) {
           if (range != null) {
             context.read<SalesProvider>().setFilterRange(range);
@@ -46,10 +54,7 @@ class _ArchivePageState extends State<ArchivePage> {
         },
         onClear: () {
           context.read<SalesProvider>().clearFilter();
-          setState(() {
-            _selectedVariety = null;
-            _searchController.clear();
-          });
+          _searchController.clear();
         },
       ),
     );
@@ -58,23 +63,18 @@ class _ArchivePageState extends State<ArchivePage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SalesProvider>();
-    final dateFiltered = provider.sales;
 
     // Layer local filters: search and variety
     final query = _searchController.text.trim().toLowerCase();
-    final displayedSales = dateFiltered.where((sale) {
+    final displayedSales = provider.filteredSales.where((sale) {
       final buyer = sale.buyer.toLowerCase();
-      final variety = sale.variety.toLowerCase();
       final matchesSearch = query.isEmpty || buyer.contains(query);
-      final matchesVariety =
-          _selectedVariety == null ||
-          variety == _selectedVariety!.toLowerCase();
-      return matchesSearch && matchesVariety;
+      return matchesSearch;
     }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      appBar: appBar(
+      appBar: AppBarSection(
         leadingIcon: const CircleAvatar(
           radius: 24,
           backgroundColor: Color(0xFFE0E0E0),
@@ -82,16 +82,21 @@ class _ArchivePageState extends State<ArchivePage> {
         ),
         title: "Sales Archive",
         subtitle: "Sales history records",
-        actions: buildAppBarActions(context, tooltip: "Download report"),
+        actions: buildAppBarActions(
+          context,
+          tooltip: "Download report",
+          isDisabled: !provider.hasSales,
+        ),
       ),
       body: Column(
         children: [
           SearchBarSection(controller: _searchController),
 
           ActiveFiltersBar(
-            selectedVariety: _selectedVariety,
+            selectedVariety: provider.selectedVariety,
             searchQuery: query,
-            onClearVariety: () => setState(() => _selectedVariety = null),
+            onClearVariety: () =>
+                context.read<SalesProvider>().setVarietyFilter(null),
             onClearSearch: () => setState(() => _searchController.clear()),
           ),
 
@@ -107,23 +112,29 @@ class _ArchivePageState extends State<ArchivePage> {
               onDelete: _deleteSale,
               getVariationColor: getVariationColor,
               onTap: (sale) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => SaleDetailsPage(saleId: sale.id),
-                  ),
-                );
+                if (sale.id != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SaleDetailsPage(saleId: sale.id!),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Sale not yet saved, cannot view details"),
+                    ),
+                  );
+                }
               },
+
               filtersActive:
                   query.isNotEmpty ||
-                  _selectedVariety != null ||
+                  provider.selectedVariety != null ||
                   provider.filterRange != null,
               onClearAllFilters: () {
-                context.read<SalesProvider>().clearFilter(); // date
-                setState(() {
-                  _selectedVariety = null; // variety
-                  _searchController.clear(); // search
-                });
+                context.read<SalesProvider>().clearFilter();
+                _searchController.clear();
               },
             ),
           ),

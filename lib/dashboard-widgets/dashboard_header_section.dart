@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/dashboard-widgets/revenue_section.dart';
 
+/// DashboardHeader
+/// ---------------
+/// Displays the top section of the DashboardPage.
+///
+/// Purpose:
+/// - Shows app branding and quick summary metrics.
+
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
 
@@ -30,7 +37,7 @@ class DashboardHeader extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3), // semi-transparent
+            color: Colors.white.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(20),
           ),
           child: RichText(
@@ -46,22 +53,18 @@ class DashboardHeader extends StatelessWidget {
                 ),
                 const TextSpan(
                   text: "\nThis is your ",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
                 const TextSpan(
                   text: "Banana Farm Sales Tracker",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, 
+                    color: Colors.white,
                   ),
                 ),
                 const TextSpan(
                   text: " — monitor sales and grow your business.",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
               ],
             ),
@@ -70,7 +73,7 @@ class DashboardHeader extends StatelessWidget {
 
         // RevenueSection overlapping into green background
         Positioned(
-          bottom: -100, 
+          bottom: -100,
           left: 0,
           right: 0,
           child: const RevenueSection(),

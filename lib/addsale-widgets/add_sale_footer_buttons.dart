@@ -12,12 +12,13 @@ class AddSaleFooterButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 34),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, -2),
             blurRadius: 6,
           ),
@@ -29,13 +30,17 @@ class AddSaleFooterButtons extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 side: BorderSide(color: Colors.grey.shade400),
               ),
-              child: const Text("Cancel", style: TextStyle(fontSize: 16)),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(fontSize: 16, color: Color(0xFF0A6305)),
+              ),
             ),
           ),
           const SizedBox(width: 16),

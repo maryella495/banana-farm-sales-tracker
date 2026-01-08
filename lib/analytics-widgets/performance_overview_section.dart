@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-
 import 'package:myapp/analytics-widgets/summary_card.dart';
 import 'package:myapp/analytics-widgets/detailed_summary_card.dart';
 import 'package:myapp/providers/sales_provider.dart';
-import 'package:myapp/models/sale.dart';
+import 'package:myapp/utils/analytics_helper.dart'; // ✅ import helper
 import 'package:fl_chart/fl_chart.dart';
+
+/// PerformanceOverviewSection
+/// --------------------------
+/// Summarizes overall sales performance in the AnalyticsPage.
+///
+/// Purpose:
+/// - Shows total revenue, average price per kilo, highest and lowest sale.
+/// - Provides quick insights for farmers.
+///
+/// Notes:
+/// - Relies on AnalyticsHelper methods for calculations.
 
 class PerformanceOverviewSection extends StatelessWidget {
   final Map<String, double> salesData;
@@ -18,25 +28,10 @@ class PerformanceOverviewSection extends StatelessWidget {
     final provider = context.watch<SalesProvider>();
     final sales = provider.sales;
 
-    // Totals & averages
-    final totalSales = sales.fold<double>(
-      0,
-      (sum, s) => sum + (s.price * s.quantity),
-    );
-    final totalWeight = sales.fold<int>(0, (sum, s) => sum + s.quantity);
-    final avgPrice = totalWeight == 0 ? 0 : totalSales / totalWeight;
-
-    // Highest & lowest sale
-    Sale? highestSale;
-    Sale? lowestSale;
-    if (sales.isNotEmpty) {
-      highestSale = sales.reduce(
-        (a, b) => (a.price * a.quantity) > (b.price * b.quantity) ? a : b,
-      );
-      lowestSale = sales.reduce(
-        (a, b) => (a.price * a.quantity) < (b.price * b.quantity) ? a : b,
-      );
-    }
+    // ✅ Use AnalyticsHelper methods instead of inline calculations
+    final avgPrice = AnalyticsHelper.averagePrice(sales);
+    final highestSale = AnalyticsHelper.highestSale(sales);
+    final lowestSale = AnalyticsHelper.lowestSale(sales);
 
     // --- Adaptive chart widget ---
     Widget chart;
@@ -61,7 +56,9 @@ class PerformanceOverviewSection extends StatelessWidget {
                     .toList()
                     .asMap()
                     .entries
-                    .map((e) => FlSpot(e.key.toDouble(), e.value.value))
+                    .map(
+                      (e) => FlSpot(e.key.toDouble(), e.value.value.toDouble()),
+                    )
                     .toList(),
                 isCurved: false,
                 color: const Color(0xFF0A6305),
@@ -123,7 +120,9 @@ class PerformanceOverviewSection extends StatelessWidget {
                     .toList()
                     .asMap()
                     .entries
-                    .map((e) => FlSpot(e.key.toDouble(), e.value.value))
+                    .map(
+                      (e) => FlSpot(e.key.toDouble(), e.value.value.toDouble()),
+                    )
                     .toList(),
                 isCurved: true,
                 color: const Color(0xFF0A6305),
@@ -175,8 +174,7 @@ class PerformanceOverviewSection extends StatelessWidget {
               name: highestSale.buyer,
               date: DateFormat("MMM d").format(highestSale.date),
               variation: highestSale.variety,
-              value:
-                  "₱${(highestSale.price * highestSale.quantity).toStringAsFixed(0)}",
+              value: "₱${highestSale.total.toStringAsFixed(0)}",
               valueColor: const Color(0xFF0A6305),
             ),
           if (lowestSale != null)
@@ -187,8 +185,7 @@ class PerformanceOverviewSection extends StatelessWidget {
               name: lowestSale.buyer,
               date: DateFormat("MMM d").format(lowestSale.date),
               variation: lowestSale.variety,
-              value:
-                  "₱${(lowestSale.price * lowestSale.quantity).toStringAsFixed(0)}",
+              value: "₱${lowestSale.total.toStringAsFixed(0)}",
               valueColor: const Color(0xFFE6A10C),
             ),
         ],

@@ -29,7 +29,7 @@ class VariationBreakdownSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, 2),
             blurRadius: 6,
           ),
@@ -52,7 +52,7 @@ class VariationBreakdownSection extends StatelessWidget {
                   return PieChartSectionData(
                     color: color,
                     value: entry.value.toDouble(),
-                    title: "${percent}%",
+                    title: "$percent%",
                     radius: 60,
                     titleStyle: const TextStyle(
                       fontSize: 12,
@@ -79,7 +79,7 @@ class VariationBreakdownSection extends StatelessWidget {
                     Icon(Icons.circle, color: color, size: 12),
                     const SizedBox(width: 8),
                     Text(
-                      "${entry.key}: ₱${entry.value.toStringAsFixed(0)} (${percent}%)",
+                      "${entry.key}: ₱${entry.value.toStringAsFixed(0)} ($percent%)",
                     ),
                   ],
                 ),

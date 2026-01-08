@@ -7,7 +7,7 @@ import 'package:myapp/pages/archive_page.dart';
 import 'package:myapp/pages/dashboard_page.dart';
 import 'package:myapp/pages/settings_page.dart';
 
-final GlobalKey<_RootPageState> rootPageKey = GlobalKey<_RootPageState>();
+final GlobalKey<RootPageState> rootPageKey = GlobalKey<RootPageState>();
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -17,10 +17,10 @@ class RootPage extends StatefulWidget {
   }
 
   @override
-  State<RootPage> createState() => _RootPageState();
+  State<RootPage> createState() => RootPageState();
 }
 
-class _RootPageState extends State<RootPage> {
+class RootPageState extends State<RootPage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [

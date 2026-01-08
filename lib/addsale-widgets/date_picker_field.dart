@@ -34,22 +34,24 @@ class DatePickerField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: _boxDecoration,
           child: TextFormField(
+            key: ValueKey(selectedDate), // forces rebuild when date changes
             readOnly: true,
+            initialValue: selectedDate != null
+                ? "${selectedDate!.month}/${selectedDate!.day}/${selectedDate!.year}"
+                : "",
             decoration: _inputDecoration("Select Date"),
-            controller: TextEditingController(
-              text: selectedDate != null
-                  ? "${selectedDate!.month}/${selectedDate!.day}/${selectedDate!.year}"
-                  : "",
-            ),
-            validator: (value) => selectedDate == null ? "Required" : null,
+            validator: (_) => selectedDate == null ? "Required" : null,
             onTap: () async {
+              final now = DateTime.now();
               final picked = await showGreenDatePicker(
                 context: context,
-                initialDate: DateTime.now(),
+                initialDate: selectedDate ?? DateTime.now(),
                 firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                lastDate: now,
               );
-              onDatePicked(picked);
+              if (picked != null) {
+                onDatePicked(picked);
+              }
             },
           ),
         ),

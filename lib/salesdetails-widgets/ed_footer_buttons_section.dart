@@ -12,12 +12,13 @@ class EDFooterButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 34),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, -2),
             blurRadius: 6,
           ),
@@ -73,16 +74,34 @@ class EDFooterButtons extends StatelessWidget {
                     ],
                   ),
                 );
-
+                if (!context.mounted) return;
                 if (confirm == true) {
-                  context.read<SalesProvider>().deleteSale(sale.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Sale deleted successfully"),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  Navigator.pop(context);
+                  if (sale.id != null) {
+                    context.read<SalesProvider>().deleteSale(sale.id!);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Sale deleted successfully",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Color(0xFF0A6305),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+
+                    Navigator.pop(context); // close details page
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Sale not yet saved, cannot delete",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Color(0xFFB60D15),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
                 }
               },
               icon: const Icon(Icons.delete_outline),

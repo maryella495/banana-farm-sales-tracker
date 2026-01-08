@@ -59,8 +59,11 @@ class SalesCountSection extends StatelessWidget {
 
                   confirmDeleteAllDialog(context, () {
                     for (final sale in displayedSales) {
-                      provider.deleteSale(sale.id);
+                      if (sale.id != null) {
+                        provider.deleteSale(sale.id!);
+                      }
                     }
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: const Color(0xFF0A6305),

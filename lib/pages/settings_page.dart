@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/pages/notification_page.dart';
-import 'package:myapp/pages/sections/appbar_section.dart';
+import 'package:myapp/shared/appbar_section.dart';
 import 'package:myapp/settings-widgets/settings_group.dart';
-import 'package:myapp/settings-widgets/sign_out_button.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -10,7 +9,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(
+      appBar: AppBarSection(
         leadingIcon: const CircleAvatar(
           radius: 24,
           backgroundColor: Color(0xFFE0E0E0),
@@ -38,17 +37,7 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [
-          const SettingsGroup(),
-          const SizedBox(height: 24),
-          const Divider(),
-          const SizedBox(height: 8),
-          SignOutButton(
-            onSignOut: () {
-              //TODO: handle sign out
-            },
-          ),
-        ],
+        children: [const SettingsGroup(), const SizedBox(height: 24)],
       ),
     );
   }

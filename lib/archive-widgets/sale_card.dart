@@ -4,14 +4,14 @@ import 'package:myapp/models/sale.dart';
 
 class SaleCard extends StatelessWidget {
   final Sale sale;
-  final void Function(Sale sale) onDelete;
+  final void Function(Sale sale)? onDelete;
   final Color Function(String) getVariationColor;
   final void Function(Sale sale)? onTap;
 
   const SaleCard({
     super.key,
     required this.sale,
-    required this.onDelete,
+    this.onDelete,
     required this.getVariationColor,
     this.onTap,
   });
@@ -40,7 +40,7 @@ class SaleCard extends StatelessWidget {
             border: Border.all(color: Colors.grey.shade300, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.5),
                 offset: const Offset(0, 2),
                 blurRadius: 4,
               ),
@@ -108,6 +108,7 @@ class SaleCard extends StatelessWidget {
               const SizedBox(height: 8),
               const Divider(),
               // Variation badge + delete
+              // inside the Row at the bottom of SaleCard
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -136,57 +137,68 @@ class SaleCard extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Confirm Deletion"),
-                          content: const Text(
-                            "Are you sure you want to delete this sale? This action cannot be undone.",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text(
-                                "Cancel",
-                                style: TextStyle(color: Colors.black),
+                    onTap: onDelete == null
+                        ? null
+                        : () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Confirm Deletion"),
+                                content: const Text(
+                                  "Are you sure you want to delete this sale? This action cannot be undone.",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text("Cancel"),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFB60D15),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text("Delete"),
+                                  ),
+                                ],
                               ),
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFB60D15),
-                              ),
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text(
-                                "Delete",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                            );
 
-                      if (confirm == true) {
-                        onDelete(sale);
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Color(0xFF0A6305),
-                            content: Text(
-                              "Sale deleted successfully",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        );
-                      }
-                    },
+                            if (confirm == true) {
+                              if (!context.mounted) return;
+
+                              onDelete!(sale);
+                              ScaffoldMessenger.of(
+                                context,
+                              ).hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Color(0xFF0A6305),
+                                  content: Text(
+                                    "Sale deleted successfully",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                     child: Row(
-                      children: const [
-                        Icon(Icons.delete_outline, color: Color(0xFFB60D15)),
-                        SizedBox(width: 4),
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          color: onDelete == null
+                              ? Colors.grey
+                              : const Color(0xFFB60D15),
+                        ),
+                        const SizedBox(width: 4),
                         Text(
                           "Delete",
-                          style: TextStyle(color: Color(0xFFB60D15)),
+                          style: TextStyle(
+                            color: onDelete == null
+                                ? Colors.grey
+                                : const Color(0xFFB60D15),
+                          ),
                         ),
                       ],
                     ),

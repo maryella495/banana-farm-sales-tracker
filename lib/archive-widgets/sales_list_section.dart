@@ -4,6 +4,16 @@ import 'package:myapp/models/sale.dart';
 import 'package:myapp/providers/sales_provider.dart';
 import 'sale_card.dart';
 
+/// SalesListSection
+/// ----------------
+/// Displays a scrollable list of sales records with buyer, variety, quantity,
+/// and price. Used in ArchivePage to show filtered or full sales history.
+///
+/// Key features:
+/// - Farmer-friendly formatting (e.g., "4 kg | Lakatan")
+/// - Responsive layout with spacing and semantic colors
+/// - Supports tapping a sale to view details
+
 class SalesListSection extends StatefulWidget {
   final List<Sale> sales;
   final void Function(Sale sale) onDelete;
@@ -32,6 +42,7 @@ class _SalesListSectionState extends State<SalesListSection> {
 
   @override
   Widget build(BuildContext context) {
+    // Guard: show empty state if no sales
     if (widget.sales.isEmpty) {
       final provider = context.watch<SalesProvider>();
       final filtersActive =
@@ -80,6 +91,7 @@ class _SalesListSectionState extends State<SalesListSection> {
 
     final displayedSales = widget.sales.take(_currentMax).toList();
 
+    // Build list of sales cards
     return ListView.builder(
       itemCount: displayedSales.length + 1, // +1 for "Load more" button
       itemBuilder: (context, index) {
@@ -87,9 +99,9 @@ class _SalesListSectionState extends State<SalesListSection> {
           final sale = displayedSales[index];
           return SaleCard(
             sale: sale,
-            onDelete: widget.onDelete,
+            onDelete: sale.id != null ? widget.onDelete : null,
             getVariationColor: widget.getVariationColor,
-            onTap: widget.onTap,
+            onTap: sale.id != null ? widget.onTap : null,
           );
         } else {
           // Load more button

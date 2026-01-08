@@ -5,6 +5,16 @@ import 'package:myapp/analytics-widgets/detailed_summary_card.dart';
 import 'package:myapp/providers/sales_provider.dart';
 import 'package:myapp/models/sale.dart';
 
+/// VariationInsightsSection
+/// ----------------------------------------------
+/// Displays analytics grouped by banana variety.
+///  Used in AnalyticsPage to show which varieties contribute most to revenue.
+///
+/// Key features:
+/// - Uses AnalyticsHelper.groupByVariety
+/// - Renders a bar chart + summary cards
+/// - Helps farmers identify top-performing varieties
+
 class VariationInsightsSection extends StatelessWidget {
   final Map<String, double> variationSales;
 

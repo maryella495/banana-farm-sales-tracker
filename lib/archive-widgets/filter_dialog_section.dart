@@ -66,6 +66,7 @@ class FilterDialog extends StatelessWidget {
                 firstDate: DateTime(2020),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
               );
+              if (!context.mounted) return;
 
               onDateRangeSelected(picked);
               Navigator.pop(context);

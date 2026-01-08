@@ -5,8 +5,7 @@ import 'package:myapp/utils/analytics_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/analytics-widgets/performance_overview_section.dart';
 import 'package:myapp/analytics-widgets/variation_insights_section.dart';
-import 'package:myapp/pages/notification_page.dart';
-import 'package:myapp/pages/sections/appbar_section.dart';
+import 'package:myapp/shared/appbar_section.dart';
 import 'package:myapp/providers/sales_provider.dart';
 
 class AnalyticsPage extends StatelessWidget {
@@ -20,7 +19,7 @@ class AnalyticsPage extends StatelessWidget {
     //  Guard: empty state
     if (sales.isEmpty) {
       return Scaffold(
-        appBar: appBar(
+        appBar: AppBarSection(
           leadingIcon: const CircleAvatar(
             radius: 24,
             backgroundColor: Color(0xFFE0E0E0),
@@ -28,22 +27,11 @@ class AnalyticsPage extends StatelessWidget {
           ),
           title: "Analytics",
           subtitle: "Insights and performance",
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications, color: Color(0xFF0A6305)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const NotificationPage()),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.download, color: Colors.grey),
-              tooltip: "Download report",
-              onPressed: null,
-            ),
-          ],
+          actions: buildAppBarActions(
+            context,
+            tooltip: "Download analytics",
+            isDisabled: true,
+          ),
         ),
         body: const Center(
           child: Text(
@@ -59,7 +47,7 @@ class AnalyticsPage extends StatelessWidget {
     final variationSales = AnalyticsHelper.groupByVariety(sales);
 
     return Scaffold(
-      appBar: appBar(
+      appBar: AppBarSection(
         leadingIcon: const CircleAvatar(
           radius: 24,
           backgroundColor: Color(0xFFE0E0E0),
@@ -67,7 +55,11 @@ class AnalyticsPage extends StatelessWidget {
         ),
         title: "Analytics",
         subtitle: "Insights and performance",
-        actions: buildAppBarActions(context, tooltip: "Download analytics"),
+        actions: buildAppBarActions(
+          context,
+          tooltip: "Download analytics",
+          isDisabled: !provider.hasSales,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

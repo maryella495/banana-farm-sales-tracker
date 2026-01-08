@@ -32,7 +32,12 @@ class SaleDetailsPage extends StatelessWidget {
           return const Center(child: Text('Sale not found'));
         }
         return Scaffold(
-          appBar: AppBar(title: const Text("Sale Details")),
+          appBar: AppBar(
+            title: const Text(
+              "Sale Details",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
