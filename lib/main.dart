@@ -8,13 +8,14 @@ import 'package:myapp/services/database_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize DB
   await DatabaseService().init();
+  final salesProvider = SalesProvider();
+  await salesProvider.init();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SalesProvider()),
+        ChangeNotifierProvider.value(value: salesProvider),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
